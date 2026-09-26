@@ -5,23 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VLEARN Practice Exam</title>
     
-    <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#4338ca">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="VLEARN Exam">
-    <link rel="manifest" href="manifest.json">
-
-    <!-- Service Worker Registration -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('Service Worker registered.'))
-                    .catch(err => console.log('Service Worker registration failed:', err));
-            });
-        }
-    </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -105,52 +92,843 @@
         </div>
     </main>
 
-    <!-- Global Exams Storage -->
+    <!-- Global Exams Storage & Logic -->
     <script>
-        window.allExams = window.allExams || {};
-    </script>
+        window.allExams = {
+            "exam_related_syn_ant_1": {
+                id: "exam_related_syn_ant_1",
+                title: "Related Words Synonyms and Antonyms Test 1",
+                subtitle: "Reading Practice Test (Questions 1–16)",
+                badge: "어휘 (Vocabulary)",
+                description: "관련어, 비슷한 말, 반댓말 유형 실전 연습 모의고사 1탄 (Chapter 7 & 8)",
+                questions: [
+                    { id: 1, type: "text", title: "1. 다음 단어와 관계있는 것은 무엇입니까?", topic: "관련어 (Related Words)", word: "가족", options: ["양말", "빵", "누나", "못"], answer: 2, explanation: "'누나'는 가족 구성원에 속하는 단어입니다." },
+                    { id: 2, type: "text", title: "2. 다음 단어와 관계있는 것은 무엇입니까?", topic: "관련어 (Related Words)", word: "길이", options: ["적다", "넓다", "멀다", "짧다"], answer: 3, explanation: "'길이'를 나타내는 형용사 표현에는 '길다' / '짧다'가 있습니다." },
+                    { id: 3, type: "text", title: "3. 다음 단어와 관계있는 것은 무엇입니까?", topic: "관련어 (Related Words)", word: "임신, 아기, 배, 출산", options: ["내과", "산부인과", "소아과", "정형외과"], answer: 1, explanation: "'임신', '아기', '배', '출산'과 관련된 병원 진료 과목은 '산부인과'입니다." },
+                    { id: 4, type: "text", title: "4. 다음 단어와 관계있는 것은 무엇입니까?", topic: "관련어 (Related Words)", word: "비자, 외국인등록증, 체류기간, 불법체류", options: ["출입국관리소", "고용센터", "외국인력지원센터", "복지관"], answer: 0, explanation: "비자, 체류기간, 체류자격 등과 관련된 기관은 '출입국관리소'입니다." },
+                    { id: 5, type: "text", title: "5. 다음 단어와 관계있는 것은 무엇입니까?", topic: "관련어 (Related Words)", word: "농기구", options: ["스패너", "호미", "덤프트럭", "포클레인"], answer: 1, explanation: "'호미'는 농업에서 사용하는 representative 농기구입니다." },
+                    { id: 6, type: "text", title: "6. 다음 단어와 관계있는 것은 무엇입니까?", topic: "관련어 (Related Words)", word: "피아노", options: ["감다", "틀다", "따다", "치다"], answer: 3, explanation: "피아노와 연주 관련 동사는 '치다' (피아노를 치다)입니다." },
+                    { id: 7, type: "text", title: "7. 다음 단어와 관계있는 것은 무엇입니까?", topic: "관련어 (Related Words)", word: "옷, 전화, 시계", options: ["걸다", "같다", "같다", "싸다"], answer: 0, explanation: "옷을 걸다, 전화를 걸다, 시계를 걸다 등 공통으로 쓸 수 있는 동사는 '걸다'입니다." },
+                    { id: 8, type: "text", title: "8. 다음 단어와 관계있는 것은 무엇입니까?", topic: "관련어 (Related Words)", word: "바나나", options: ["켤레", "봉지", "송이", "자루"], answer: 2, explanation: "바나나나 포도 같은 과일을 세는 단위는 '송이'입니다." },
+                    { id: 9, type: "text", title: "9. 다음 단어의 비슷한 말은 무엇입니까?", topic: "비슷한 말 (Synonyms)", word: "(월급을) 타다", options: ["받다", "섞다", "불붙다", "오르다"], answer: 0, explanation: "'월급을 타다'의 '타다'는 '받다'와 비슷한 뜻입니다." },
+                    { id: 10, type: "text", title: "10. 다음 단어의 반댓말은 무엇입니까?", topic: "반댓말 (Antonyms)", word: "길다", options: ["적다", "넓다", "멀다", "짧다"], answer: 3, explanation: "'길다'의 반대말은 '짧다'입니다." },
+                    { id: 11, type: "text", title: "11. 다음 단어의 비슷한 말은 무엇입니까?", topic: "비슷한 말 (Synonyms)", word: "언제나", options: ["늘", "잘", "참", "꼭"], answer: 0, explanation: "'언제나'와 비슷한 의미를 지닌 부사는 '늘'입니다." },
+                    { id: 12, type: "text", title: "12. 다음 단어의 비슷한 말은 무엇입니까?", topic: "비슷한 말 (Synonyms)", word: "(수업을) 마치다", options: ["멈추다", "끝내다", "미루다", "바꾸다"], answer: 1, explanation: "'마치다'의 유의어는 '끝내다'입니다." },
+                    { id: 13, type: "text", title: "13. 다음 단어의 비슷한 말은 무엇입니까?", topic: "비슷한 말 (Synonyms)", word: "간단하다", options: ["저렴하다", "조용하다", "복잡하다", "단순하다"], answer: 3, explanation: "'간단하다'와 유의한 표현은 '단순하다'입니다." },
+                    { id: 14, type: "text", title: "14. 다음 단어의 반댓말은 무엇입니까?", topic: "반댓말 (Antonyms)", word: "개강", options: ["종강", "수강", "청강", "인강"], answer: 0, explanation: "강의를 시작함을 뜻하는 '개강'의 반대말은 강의를 마침을 뜻하는 '종강'입니다." },
+                    { id: 15, type: "text", title: "15. 다음 단어의 반댓말은 무엇입니까?", topic: "반댓말 (Antonyms)", word: "잠그다", options: ["매다", "담다", "풀다", "적다"], answer: 2, explanation: "'잠그다' (단추/잠금장치 등)의 반대어 표현은 '풀다'입니다." },
+                    { id: 16, type: "text", title: "16. 다음 단어의 반댓말은 무엇입니까?", topic: "반댓말 (Antonyms)", word: "가볍다", options: ["비싸다", "무겁다", "부드럽다", "날씬하다"], answer: 1, explanation: "'가볍다'의 반대말은 '무겁다'입니다." }
+                ]
+            },
+            "exam_vocab_1": {
+                id: "exam_vocab_1",
+                title: "Picture Vocabs Test 1",
+                subtitle: "Vocabulary Practice Test 1 (Questions 1–100)",
+                badge: "어휘 (Vocabulary)",
+                description: "영어 단어를 보고 알맞은 한국어 단어를 찾는 어휘 실전 100문제",
+                questions: [
+                    { id: 1, type: "text", title: "1. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "자연과 환경 (Nature)", word: "Sun", options: ["태양", "달", "구름", "바람"], answer: 0, explanation: "'Sun'의 한국어 뜻은 '태양'입니다." },
+                    { id: 2, type: "text", title: "2. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "자연과 환경 (Nature)", word: "Moon", options: ["태양", "달", "별", "안개"], answer: 1, explanation: "'Moon'의 한국어 뜻은 '달'입니다." },
+                    { id: 3, type: "text", title: "3. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "자연과 환경 (Nature)", word: "Star", options: ["구름", "비", "별", "눈"], answer: 2, explanation: "'Star'의 한국어 뜻은 '별'입니다." },
+                    { id: 4, type: "text", title: "4. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "자연과 환경 (Nature)", word: "Cloud", options: ["안개", "바람", "산", "구름"], answer: 3, explanation: "'Cloud'의 한국어 뜻은 '구름'입니다." },
+                    { id: 5, type: "text", title: "5. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "자연과 환경 (Nature)", word: "Rain", options: ["눈", "비", "강", "바다"], answer: 1, explanation: "'Rain'의 한국어 뜻은 '비'입니다." },
+                    { id: 6, type: "text", title: "6. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "자연과 환경 (Nature)", word: "Snow", options: ["비", "바람", "호수", "눈"], answer: 3, explanation: "'Snow'의 한국어 뜻은 '눈'입니다." },
+                    { id: 7, type: "text", title: "7. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "자연과 환경 (Nature)", word: "Wind", options: ["태양", "바람", "안개", "계곡"], answer: 1, explanation: "'Wind'의 한국어 뜻은 '바람'입니다." },
+                    { id: 8, type: "text", title: "8. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "자연과 환경 (Nature)", word: "Fog", options: ["구름", "안개", "섬", "숲"], answer: 1, explanation: "'Fog'의 한국어 뜻은 '안개'입니다." },
+                    { id: 9, type: "text", title: "9. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "자연과 환경 (Nature)", word: "Mountain", options: ["강", "바다", "산", "숲"], answer: 2, explanation: "'Mountain'의 한국어 뜻은 '산'입니다." },
+                    { id: 10, type: "text", title: "10. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "자연과 환경 (Nature)", word: "River", options: ["바다", "호수", "강", "계곡"], answer: 2, explanation: "'River'의 한국어 뜻은 '강'입니다." },
+                    { id: 11, type: "text", title: "11. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "자연과 환경 (Nature)", word: "Sea", options: ["산", "섬", "나무", "바다"], answer: 3, explanation: "'Sea'의 한국어 뜻은 '바다'입니다." },
+                    { id: 12, type: "text", title: "12. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "자연과 환경 (Nature)", word: "Lake", options: ["강", "호수", "계곡", "풀"], answer: 1, explanation: "'Lake'의 한국어 뜻은 '호수'입니다." },
+                    { id: 13, type: "text", title: "13. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "자연과 환경 (Nature)", word: "Valley", options: ["산", "계곡", "섬", "꽃"], answer: 1, explanation: "'Valley'의 한국어 뜻은 '계곡'입니다." },
+                    { id: 14, type: "text", title: "14. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "자연과 환경 (Nature)", word: "Island", options: ["바다", "숲", "섬", "나무"], answer: 2, explanation: "'Island'의 한국어 뜻은 '섬'입니다." },
+                    { id: 15, type: "text", title: "15. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "자연과 환경 (Nature)", word: "Forest", options: ["풀", "꽃", "달", "숲"], answer: 3, explanation: "'Forest'의 한국어 뜻은 '숲'입니다." },
+                    { id: 16, type: "text", title: "16. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "자연과 환경 (Nature)", word: "Tree", options: ["풀", "나무", "꽃", "비"], answer: 1, explanation: "'Tree'의 한국어 뜻은 '나무'입니다." },
+                    { id: 17, type: "text", title: "17. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "자연과 환경 (Nature)", word: "Grass", options: ["나무", "산", "풀", "강"], answer: 2, explanation: "'Grass'의 한국어 뜻은 '풀'입니다." },
+                    { id: 18, type: "text", title: "18. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "자연과 환경 (Nature)", word: "Flower", options: ["사과", "포도", "나무", "꽃"], answer: 3, explanation: "'Flower'의 한국어 뜻은 '꽃'입니다." },
+                    { id: 19, type: "text", title: "19. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Cooked Rice", options: ["국", "밥", "반찬", "김치"], answer: 1, explanation: "'Cooked Rice'의 한국어 뜻은 '밥'입니다." },
+                    { id: 20, type: "text", title: "20. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Soup", options: ["밥", "우유", "국", "물"], answer: 2, explanation: "'Soup'의 한국어 뜻은 '국'입니다." },
+                    { id: 21, type: "text", title: "21. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Side Dishes", options: ["라면", "국수", "갈비", "반찬"], answer: 3, explanation: "'Side Dishes'의 한국어 뜻은 '반찬'입니다." },
+                    { id: 22, type: "text", title: "22. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Kimchi", options: ["피클", "김치", "단무지", "사과"], answer: 1, explanation: "'Kimchi'의 한국어 명칭은 '김치'입니다." },
+                    { id: 23, type: "text", title: "23. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Soybean Paste Soup", options: ["미역국", "불고기", "삼겹살", "된장국"], answer: 3, explanation: "'Soybean Paste Soup'의 한국어 뜻은 '된장국'입니다." },
+                    { id: 24, type: "text", title: "24. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Seaweed Soup", options: ["김치찌개", "미역국", "순두부찌개", "우동"], answer: 1, explanation: "'Seaweed Soup'의 한국어 뜻은 '미역국'입니다." },
+                    { id: 25, type: "text", title: "25. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Kimchi Stew", options: ["된장국", "냉면", "김치찌개", "차"], answer: 2, explanation: "'Kimchi Stew'의 한국어 뜻은 '김치찌개'입니다." },
+                    { id: 26, type: "text", title: "26. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Soft Tofu Stew", options: ["순두부찌개", "불고기", "닭고기", "깍두기"], answer: 0, explanation: "'Soft Tofu Stew'의 한국어 뜻은 '순두부찌개'입니다." },
+                    { id: 27, type: "text", title: "27. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Bulgogi (Grilled Marinated Beef)", options: ["삼겹살", "불고기", "갈비", "닭고기"], answer: 1, explanation: "'Bulgogi'의 한국어 명칭은 '불고기'입니다." },
+                    { id: 28, type: "text", title: "28. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Pork Belly", options: ["갈비", "닭고기", "삼겹살", "라면"], answer: 2, explanation: "'Pork Belly'의 한국어 뜻은 '삼겹살'입니다." },
+                    { id: 29, type: "text", title: "29. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Ribs (Galbi)", options: ["불고기", "삼겹살", "피클", "갈비"], answer: 3, explanation: "'Ribs'의 한국어 명칭은 '갈비'입니다." },
+                    { id: 30, type: "text", title: "30. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Chicken", options: ["갈비", "닭고기", "김치", "우유"], answer: 1, explanation: "'Chicken'의 한국어 뜻은 '닭고기'입니다." },
+                    { id: 31, type: "text", title: "31. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Cubed Radish Kimchi", options: ["단무지", "피클", "깍두기", "사과"], answer: 2, explanation: "'Cubed Radish Kimchi'의 한국어 명칭은 '깍두기'입니다." },
+                    { id: 32, type: "text", title: "32. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Pickled Radish", options: ["피클", "단무지", "귤", "배"], answer: 1, explanation: "'Pickled Radish'의 한국어 뜻은 '단무지'입니다." },
+                    { id: 33, type: "text", title: "33. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Pickles", options: ["단무지", "바나나", "수박", "피클"], answer: 3, explanation: "'Pickles'의 한국어 뜻은 '피클'입니다." },
+                    { id: 34, type: "text", title: "34. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Milk", options: ["주스", "우유", "물", "탄산음료"], answer: 1, explanation: "'Milk'의 한국어 뜻은 '우유'입니다." },
+                    { id: 35, type: "text", title: "35. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Juice", options: ["커피", "주스", "차", "우유"], answer: 1, explanation: "'Juice'의 한국어 뜻은 '주스'입니다." },
+                    { id: 36, type: "text", title: "36. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Coffee", options: ["차", "물", "탄산음료", "커피"], answer: 3, explanation: "'Coffee'의 한국어 뜻은 '커피'입니다." },
+                    { id: 37, type: "text", title: "37. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Water", options: ["우유", "물", "주스", "차"], answer: 1, explanation: "'Water'의 한국어 뜻은 '물'입니다." },
+                    { id: 38, type: "text", title: "38. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Tea", options: ["커피", "차", "주스", "우동"], answer: 1, explanation: "'Tea'의 한국어 뜻은 '차'입니다." },
+                    { id: 39, type: "text", title: "39. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Apple", options: ["배", "귤", "포도", "사과"], answer: 3, explanation: "'Apple'의 한국어 뜻은 '사과'입니다." },
+                    { id: 40, type: "text", title: "40. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Pear", options: ["사과", "배", "수박", "바나나"], answer: 1, explanation: "'Pear'의 한국어 뜻은 '배'입니다." },
+                    { id: 41, type: "text", title: "41. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Banana", options: ["귤", "포도", "바나나", "사과"], answer: 2, explanation: "'Banana'의 한국어 뜻은 '바나나'입니다." },
+                    { id: 42, type: "text", title: "42. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Tangerine", options: ["사과", "배", "포도", "귤"], answer: 3, explanation: "'Tangerine'의 한국어 뜻은 '귤'입니다." },
+                    { id: 43, type: "text", title: "43. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Grapes", options: ["포도", "수박", "사과", "바나나"], answer: 0, explanation: "'Grapes'의 한국어 뜻은 '포도'입니다." },
+                    { id: 44, type: "text", title: "44. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Watermelon", options: ["귤", "배", "수박", "포도"], answer: 2, explanation: "'Watermelon'의 한국어 뜻은 '수박'입니다." },
+                    { id: 45, type: "text", title: "45. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Ramen (Instant Noodles)", options: ["국수", "우동", "라면", "냉면"], answer: 2, explanation: "'Ramen'의 한국어 뜻은 '라면'입니다." },
+                    { id: 46, type: "text", title: "46. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Noodles", options: ["라면", "국수", "우동", "탄산음료"], answer: 1, explanation: "'Noodles'의 한국어 뜻은 '국수'입니다." },
+                    { id: 47, type: "text", title: "47. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Udon", options: ["냉면", "라면", "우동", "국수"], answer: 2, explanation: "'Udon'의 한국어 뜻은 '우동'입니다." },
+                    { id: 48, type: "text", title: "48. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Cold Noodles (Naengmyeon)", options: ["우동", "라면", "국수", "냉면"], answer: 3, explanation: "'Cold Noodles'의 한국어 뜻은 '냉면'입니다." },
+                    { id: 49, type: "text", title: "49. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "음식과 음료 (Food & Drinks)", word: "Soda / Carbonated Drink", options: ["우유", "주스", "탄산음료", "물"], answer: 2, explanation: "'Soda'의 한국어 뜻은 '탄산음료'입니다." },
+                    { id: 50, type: "text", title: "50. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Bag", options: ["지갑", "모자", "우산", "가방"], answer: 3, explanation: "'Bag'의 한국어 뜻은 '가방'입니다." },
+                    { id: 51, type: "text", title: "51. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Wallet", options: ["가방", "지갑", "거울", "시계"], answer: 1, explanation: "'Wallet'의 한국어 뜻은 '지갑'입니다." },
+                    { id: 52, type: "text", title: "52. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Bag Strap", options: ["가방걸이", "우산", "가방끈", "우비"], answer: 2, explanation: "'Bag Strap'의 한국어 뜻은 '가방끈'입니다." },
+                    { id: 53, type: "text", title: "53. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Bag Hanger", options: ["가방끈", "가방걸이", "선반", "의자"], answer: 1, explanation: "'Bag Hanger'의 한국어 뜻은 '가방걸이'입니다." },
+                    { id: 54, type: "text", title: "54. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Umbrella", options: ["양산", "우비", "우산", "모자"], answer: 2, explanation: "'Umbrella'의 한국어 뜻은 '우산'입니다." },
+                    { id: 55, type: "text", title: "55. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Raincoat", options: ["우산", "우비", "양산", "이불"], answer: 1, explanation: "'Raincoat'의 한국어 뜻은 '우비'입니다." },
+                    { id: 56, type: "text", title: "56. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Hat / Cap", options: ["우산", "가방", "모자", "베개"], answer: 2, explanation: "'Hat / Cap'의 한국어 뜻은 '모자'입니다." },
+                    { id: 57, type: "text", title: "57. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Parasol", options: ["우산", "모자", "창문", "양산"], answer: 3, explanation: "'Parasol'의 한국어 뜻은 '양산'입니다." },
+                    { id: 58, type: "text", title: "58. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Desk", options: ["식탁", "책상", "의자", "선반"], answer: 1, explanation: "'Desk'의 한국어 뜻은 '책상'입니다." },
+                    { id: 59, type: "text", title: "59. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Dining Table", options: ["책상", "선반", "식탁", "침대"], answer: 2, explanation: "'Dining Table'의 한국어 뜻은 '식탁'입니다." },
+                    { id: 60, type: "text", title: "60. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Chair", options: ["책상", "의자", "침대", "문"], answer: 1, explanation: "'Chair'의 한국어 뜻은 '의자'입니다." },
+                    { id: 61, type: "text", title: "61. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Shelf", options: ["책상", "창문", "달력", "선반"], answer: 3, explanation: "'Shelf'의 한국어 뜻은 '선반'입니다." },
+                    { id: 62, type: "text", title: "62. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Electric Fan", options: ["에어컨", "선풍기", "히터", "공기청정기"], answer: 1, explanation: "'Electric Fan'의 한국어 뜻은 '선풍기'입니다." },
+                    { id: 63, type: "text", title: "63. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Heater", options: ["선풍기", "에어컨", "세탁기", "히터"], answer: 3, explanation: "'Heater'의 한국어 뜻은 '히터'입니다." },
+                    { id: 64, type: "text", title: "64. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Air Conditioner", options: ["선풍기", "에어컨", "히터", "냉장고"], answer: 1, explanation: "'Air Conditioner'의 한국어 뜻은 '에어컨'입니다." },
+                    { id: 65, type: "text", title: "65. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Air Purifier", options: ["에어컨", "공기청정기", "세탁기", "TV"], answer: 1, explanation: "'Air Purifier'의 한국어 뜻은 '공기청정기'입니다." },
+                    { id: 66, type: "text", title: "66. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Bed", options: ["매트리스", "침대", "이불", "베개"], answer: 1, explanation: "'Bed'의 한국어 뜻은 '침대'입니다." },
+                    { id: 67, type: "text", title: "67. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Blanket", options: ["베개", "침대", "매트리스", "이불"], answer: 3, explanation: "'Blanket'의 한국어 뜻은 '이불'입니다." },
+                    { id: 68, type: "text", title: "68. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Pillow", options: ["이불", "베개", "침대", "거울"], answer: 1, explanation: "'Pillow'의 한국어 뜻은 '베개'입니다." },
+                    { id: 69, type: "text", title: "69. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Mattress", options: ["침대", "베개", "매트리스", "선반"], answer: 2, explanation: "'Mattress'의 한국어 뜻은 '매트리스'입니다." },
+                    { id: 70, type: "text", title: "70. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Washing Machine", options: ["냉장고", "세탁기", "전자레인지", "TV"], answer: 1, explanation: "'Washing Machine'의 한국어 뜻은 '세탁기'입니다." },
+                    { id: 71, type: "text", title: "71. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Refrigerator", options: ["세탁기", "전자레인지", "냉장고", "선반"], answer: 2, explanation: "'Refrigerator'의 한국어 뜻은 '냉장고'입니다." },
+                    { id: 72, type: "text", title: "72. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Microwave Oven", options: ["냉장고", "TV", "전자레인지", "컴퓨터"], answer: 2, explanation: "'Microwave Oven'의 한국어 뜻은 '전자레인지'입니다." },
+                    { id: 73, type: "text", title: "73. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Television (TV)", options: ["모니터", "컴퓨터", "TV", "창문"], answer: 2, explanation: "'Television'의 한국어 뜻은 'TV'입니다." },
+                    { id: 74, type: "text", title: "74. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Computer", options: ["TV", "컴퓨터", "프린터", "휴대폰"], answer: 1, explanation: "'Computer'의 한국어 뜻은 '컴퓨터'입니다." },
+                    { id: 75, type: "text", title: "75. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Monitor", options: ["TV", "거울", "모니터", "창문"], answer: 2, explanation: "'Monitor'의 한국어 뜻은 '모니터'입니다." },
+                    { id: 76, type: "text", title: "76. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Printer", options: ["컴퓨터", "전화기", "프린터", "세탁기"], answer: 2, explanation: "'Printer'의 한국어 뜻은 '프린터'입니다." },
+                    { id: 77, type: "text", title: "77. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Telephone", options: ["휴대폰", "전화기", "충전기", "이어폰"], answer: 1, explanation: "'Telephone'의 한국어 뜻은 '전화기'입니다." },
+                    { id: 78, type: "text", title: "78. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Cell Phone / Mobile Phone", options: ["전화기", "시계", "휴대폰", "거울"], answer: 2, explanation: "'Cell Phone'의 한국어 뜻은 '휴대폰'입니다." },
+                    { id: 79, type: "text", title: "79. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Charger", options: ["휴대폰", "충전기", "이어폰", "선풍기"], answer: 1, explanation: "'Charger'의 한국어 뜻은 '충전기'입니다." },
+                    { id: 80, type: "text", title: "80. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Earphones", options: ["충전기", "전화기", "가방", "이어폰"], answer: 3, explanation: "'Earphones'의 한국어 뜻은 '이어폰'입니다." },
+                    { id: 81, type: "text", title: "81. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Clock / Watch", options: ["달력", "시계", "거울", "창문"], answer: 1, explanation: "'Clock / Watch'의 한국어 뜻은 '시계'입니다." },
+                    { id: 82, type: "text", title: "82. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Calendar", options: ["시계", "달력", "창문", "선반"], answer: 1, explanation: "'Calendar'의 한국어 뜻은 '달력'입니다." },
+                    { id: 83, type: "text", title: "83. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Door", options: ["창문", "문", "벽", "계단"], answer: 1, explanation: "'Door'의 한국어 뜻은 '문'입니다." },
+                    { id: 84, type: "text", title: "84. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Window", options: ["문", "거울", "창문", "벽"], answer: 2, explanation: "'Window'의 한국어 뜻은 '창문'입니다." },
+                    { id: 85, type: "text", title: "85. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Wall", options: ["문", "벽", "계단", "선반"], answer: 1, explanation: "'Wall'의 한국어 뜻은 '벽'입니다." },
+                    { id: 86, type: "text", title: "86. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Mirror", options: ["창문", "시계", "거울", "달력"], answer: 2, explanation: "'Mirror'의 한국어 뜻은 '거울'입니다." },
+                    { id: 87, type: "text", title: "87. 다음 단어를 보고 맞는 한국어 단어를 고르십시오.", topic: "생활 용품 (Daily Items)", word: "Stairs", options: ["벽", "문", "계단", "선반"], answer: 2, explanation: "'Stairs'의 한국어 뜻은 '계단'입니다." },
+                    { id: 88, type: "text", title: "88. 다음 단어를 보고 맞는 직업을 고르십시오.", topic: "사람과 직업 (People & Jobs)", word: "Doctor", options: ["간호사", "선생님", "의사", "경찰관"], answer: 2, explanation: "'Doctor'의 한국어 뜻은 '의사'입니다." },
+                    { id: 89, type: "text", title: "89. 다음 단어를 보고 맞는 직업을 고르십시오.", topic: "사람과 직업 (People & Jobs)", word: "Nurse", options: ["의사", "간호사", "선생님", "소방관"], answer: 1, explanation: "'Nurse'의 한국어 뜻은 '간호사'입니다." },
+                    { id: 90, type: "text", title: "90. 다음 단어를 보고 맞는 직업을 고르십시오.", topic: "사람과 직업 (People & Jobs)", word: "Teacher", options: ["의사", "군인", "선생님", "회사원"], answer: 2, explanation: "'Teacher'의 한국어 뜻은 '선생님'입니다." },
+                    { id: 91, type: "text", title: "91. 다음 단어를 보고 맞는 직업을 고르십시오.", topic: "사람과 직업 (People & Jobs)", word: "Police Officer", options: ["소방관", "경비원", "경찰관", "군인"], answer: 2, explanation: "'Police Officer'의 한국어 뜻은 '경찰관'입니다." },
+                    { id: 92, type: "text", title: "92. 다음 단어를 보고 맞는 직업을 고르십시오.", topic: "사람과 직업 (People & Jobs)", word: "Farmer", options: ["어부", "농부", "건설 근로자", "요리사"], answer: 1, explanation: "'Farmer'의 한국어 뜻은 '농부'입니다." },
+                    { id: 93, type: "text", title: "93. 다음 단어를 보고 맞는 직업을 고르십시오.", topic: "사람과 직업 (People & Jobs)", word: "Construction Worker", options: ["농부", "경비원", "건설 근로자", "운전기사"], answer: 2, explanation: "'Construction Worker'의 한국어 뜻은 '건설 근로자'입니다." },
+                    { id: 94, type: "text", title: "94. 다음 단어를 보고 맞는 직업을 고르십시오.", topic: "사람과 직업 (People & Jobs)", word: "Firefighter", options: ["경찰관", "소방관", "군인", "어부"], answer: 1, explanation: "'Firefighter'의 한국어 뜻은 '소방관'입니다." },
+                    { id: 95, type: "text", title: "95. 다음 단어를 보고 맞는 직업을 고르십시오.", topic: "사람과 직업 (People & Jobs)", word: "Cook / Chef", options: ["선생님", "판매원", "요리사", "회사원"], answer: 2, explanation: "'Cook / Chef'의 한국어 뜻은 '요리사'입니다." },
+                    { id: 96, type: "text", title: "96. 다음 단어를 보고 맞는 직업을 고르십시오.", topic: "사람과 직업 (People & Jobs)", word: "Soldier", options: ["경찰관", "군인", "경비원", "운전기사"], answer: 1, explanation: "'Soldier'의 한국어 뜻은 '군인'입니다." },
+                    { id: 97, type: "text", title: "97. 다음 단어를 보고 맞는 직업을 고르십시오.", topic: "사람과 직업 (People & Jobs)", word: "Driver", options: ["택배 기사", "버스 기사", "운전기사", "회사원"], answer: 2, explanation: "'Driver'의 한국어 뜻은 '운전기사'입니다." },
+                    { id: 98, type: "text", title: "98. 다음 단어를 보고 맞는 직업을 고르십시오.", topic: "사람과 직업 (People & Jobs)", word: "Office Worker", options: ["판매원", "회사원", "선생님", "의사"], answer: 1, explanation: "'Office Worker'의 한국어 뜻은 '회사원'입니다." },
+                    { id: 99, type: "text", title: "99. 다음 단어를 보고 맞는 직업을 고르십시오.", topic: "사람과 직업 (People & Jobs)", word: "Salesperson", options: ["회사원", "택배 기사", "판매원", "요리사"], answer: 2, explanation: "'Salesperson'의 한국어 뜻은 '판매원'입니다." },
+                    { id: 100, type: "text", title: "100. 다음 단어를 보고 맞는 직업을 고르십시오.", topic: "사람과 직업 (People & Jobs)", word: "Fisherman", options: ["농부", "어부", "건설 근로자", "군인"], answer: 1, explanation: "'Fisherman'의 한국어 뜻은 '어부'입니다." }
+                ]
+            },
+            "exam_reading_1": {
+                id: "exam_reading_1",
+                title: "Graphs and Charts Test 1",
+                subtitle: "Reading Practice Test 1 (Questions 1–20)",
+                badge: "읽기 (Reading)",
+                description: "20가지 그래프 및 데이터 분석 실전 모의고사 1탄",
+                questions: [
+                    { id: 1, title: "1. 다음은 외국인 근로자들의 국적을 조사한 결과입니다. 설명으로 맞는 것은 무엇입니까?", topic: "자기소개 (Self-Introduction)", chartType: "pie", unit: "%", data: { labels: ['베트남', '필리핀', '네팔', '캄보디아'], values: [35, 25, 20, 20] }, options: [ "베트남 사람이 가장 많습니다.", "네팔 사람이 필리핀 사람보다 많습니다.", "캄보디아 사람이 가장 적습니다.", "필리핀과 네팔 사람의 비율은 같습니다." ], answer: 0, explanation: "베트남 사람이 35%로 가장 많습니다." },
+                    { id: 2, title: "2. 다음은 사무실에서 자주 사용하는 물건에 대한 조사입니다. 설명으로 맞는 것은 무엇입니까?", topic: "생활용품 (Office Items)", chartType: "bar", unit: "%", data: { labels: ['컴퓨터', '의자', '책상', '프린터'], values: [45, 20, 25, 10] }, options: [ "프린터가 가장 많이 사용됩니다.", "컴퓨터가 가장 많이 사용됩니다.", "의자가 책상보다 많이 사용됩니다.", "책상이 절반 이상입니다." ], answer: 1, explanation: "컴퓨터가 45%로 가장 많이 사용됩니다." },
+                    { id: 3, title: "3. 다음은 사람들이 자주 가는 장소를 조사한 결과입니다. 설명으로 맞는 것은 무엇입니까?", topic: "위치와 장소 (Locations & Places)", chartType: "bar", unit: "%", data: { labels: ['은행', '병원', '시장', '공원'], values: [15, 20, 35, 30] }, options: [ "은행이 가장 많습니다.", "병원이 시장보다 많습니다.", "시장이 가장 많습니다.", "공원이 가장 적습니다." ], answer: 2, explanation: "시장이 35%로 가장 많습니다." },
+                    { id: 4, title: "4. 다음은 하루 동안 하는 일의 시간입니다. 설명으로 맞는 것은 무엇입니까?", topic: "동작과 사물 (Daily Actions)", chartType: "bar", unit: "시간", data: { labels: ['일하기', '공부하기', '운동하기', '쉬기'], values: [8, 2, 1, 3] }, options: [ "운동하기가 가장 깁니다.", "일하는 시간이 공부하는 시간보다 짧습니다.", "쉬는 시간은 3시간입니다.", "공부하는 시간은 4시간입니다." ], answer: 2, explanation: "쉬는 시간은 3시간입니다." },
+                    { id: 5, title: "5. 다음은 한 주 동안 운동한 횟수입니다. 설명으로 맞는 것은 무엇입니까?", topic: "날짜와 요일 (Days & Dates)", chartType: "line", unit: "회", data: { labels: ['월', '화', '수', '목', '금', '토', '일'], values: [1, 2, 1, 3, 2, 4, 3] }, options: [ "토요일에 가장 많이 운동했습니다.", "월요일과 수요일은 같습니다.", "금요일에는 운동하지 않았습니다.", "일요일보다 목요일에 더 많이 운동했습니다." ], answer: 0, explanation: "토요일에 4회로 가장 많이 운동했습니다." },
+                    { id: 6, title: "6. 다음은 외국인 근로자의 하루 일과 시간입니다. 설명으로 맞는 것은 무엇입니까?", topic: "하루 일과 (Daily Routine)", chartType: "pie", unit: "%", data: { labels: ['근무', '수면', '여가', '식사'], values: [38, 33, 21, 8] }, options: [ "수면 시간이 가장 짧습니다.", "근무 시간이 수면 시간보다 깁니다.", "여가 시간이 식사 시간보다 많습니다.", "식사 시간이 여가 시간보다 많습니다." ], answer: 1, explanation: "근무 시간(38%)이 수면 시간(33%)보다 깁니다." },
+                    { id: 7, title: "7. 다음은 계절별 평균 기온입니다. 설명으로 맞는 것은 무엇입니까?", topic: "계절과 날씨 (Seasons & Weather)", chartType: "bar", unit: "℃", data: { labels: ['봄', '여름', '가을', '겨울'], values: [15, 28, 17, 2] }, options: [ "겨울이 가장 덥습니다.", "여름이 봄보다 따뜻합니다.", "가을이 여름보다 덥습니다.", "봄의 평균 기온은 5도입니다." ], answer: 1, explanation: "여름(28도)이 봄(15도)보다 따뜻합니다." },
+                    { id: 8, title: "8. 다음은 가족 구성원 수를 조사한 결과입니다. 설명으로 맞는 것은 무엇입니까?", topic: "가족과 친구 (Family & Friends)", chartType: "bar", unit: "%", data: { labels: ['1명', '2명', '3명', '4명 이상'], values: [10, 25, 40, 25] }, options: [ "1명인 가족이 가장 많습니다.", "3명인 가족이 가장 많습니다.", "2명인 가족이 가장 적습니다.", "4명 이상인 가족이 절반입니다." ], answer: 1, explanation: "3명인 가족이 40%로 가장 많습니다." },
+                    { id: 9, title: "9. 다음은 식당에서 가장 많이 주문한 음식입니다. 설명으로 맞는 것은 무엇입니까?", topic: "음식 주문 (Ordering Food)", chartType: "bar", unit: "%", data: { labels: ['비빔밥', '김치찌개', '불고기', '냉면'], values: [30, 25, 35, 10] }, options: [ "냉면이 가장 많이 팔렸습니다.", "김치찌개가 불고기보다 많습니다.", "불고기가 가장 많이 팔렸습니다.", "비빔밥은 50% 이상입니다." ], answer: 2, explanation: "불고기가 35%로 가장 많이 팔렸습니다." },
+                    { id: 10, title: "10. 다음은 한 달 동안 물건을 구입하는 데 쓴 돈입니다. 설명으로 맞는 것은 무엇입니까?", topic: "물건 구입 (Shopping / Expenses)", chartType: "bar", unit: "%", data: { labels: ['식료품', '옷', '신발', '생활용품'], values: [35, 20, 10, 25] }, options: [ "신발에 가장 많이 썼습니다.", "식료품에 가장 많이 썼습니다.", "옷과 생활용품은 합해서 30% 입니다.", "생활용품이 신발보다 적습니다." ], answer: 1, explanation: "식료품(35%)에 가장 돈을 많이 썼습니다." },
+                    { id: 11, title: "11. 다음은 집안일을 하는 시간입니다. 설명으로 맞는 것은 무엇입니까?", topic: "집안일 (Housework)", chartType: "bar", unit: "시간", data: { labels: ['청소', '빨래', '설거지', '요리'], values: [2, 1, 1, 2] }, options: [ "빨래가 가장 깁니다.", "청소와 요리 시간은 같습니다.", "설거지는 3시간입니다.", "청소가 요리보다 짧습니다." ], answer: 1, explanation: "청소(2시간)와 요리(2시간) 시간은 같습니다." },
+                    { id: 12, title: "12. 다음은 출퇴근할 때 이용하는 교통수단입니다. 설명으로 맞는 것은 무엇입니까?", topic: "대중교통 (Transportation)", chartType: "pie", unit: "%", data: { labels: ['지하철', '버스', '도보', '택시'], values: [45, 30, 15, 10] }, options: [ "택시를 이용하는 사람이 가장 많습니다.", "도보가 버스보다 많습니다.", "지하철을 이용하는 사람이 가장 많습니다.", "버스와 택시가 절반입니다." ], answer: 2, explanation: "지하철 이용자가 45%로 가장 많습니다." },
+                    { id: 13, title: "13. 다음은 주말에 하는 활동을 조사한 결과입니다. 설명으로 맞는 것은 무엇입니까?", topic: "주말 활동 (Weekend Activities)", chartType: "bar", unit: "%", data: { labels: ['영화 보기', '운동', '쇼핑', '친구 만나기'], values: [25, 20, 30, 25] }, options: [ "운동이 가장 많습니다.", "쇼핑이 가장 많습니다.", "영화 보기가 가장 적습니다.", "친구 만나기가 절반입니다." ], answer: 1, explanation: "쇼핑이 30%로 가장 많습니다." },
+                    { id: 14, title: "14. 다음은 목적지까지 걸리는 시간을 나타낸 것입니다. 설명으로 맞는 것은 무엇입니까?", topic: "길 찾기 (Directions / Time)", chartType: "bar", unit: "분", data: { labels: ['은행', '병원', '시장', '우체국'], values: [10, 15, 20, 5] }, options: [ "우체국이 가장 멉니다.", "시장이 병원보다 가깝습니다.", "시장이 가장 오래 걸립니다.", "은행까지 20분이 걸립니다." ], answer: 2, explanation: "시장이 20분으로 가장 오래 걸립니다." },
+                    { id: 15, title: "15. 다음은 계절별로 많이 입는 옷의 종류입니다. 설명으로 맞는 것은 무엇입니까?", topic: "옷차림 (Clothing)", chartType: "bar", unit: "%", data: { labels: ['봄', '여름', '가을', '겨울'], values: [25, 40, 20, 15] }, options: [ "여름이 가장 많습니다.", "겨울이 봄보다 많습니다.", "가을이 여름보다 많습니다.", "봄은 10% 입니다." ], answer: 0, explanation: "여름 옷차림 비율이 40%로 가장 많습니다." },
+                    { id: 16, title: "16. 다음은 집을 구할 때 중요하게 생각하는 조건입니다. 설명으로 맞는 것은 무엇입니까?", topic: "집 구하기 (House Hunting)", chartType: "pie", unit: "%", data: { labels: ['월세', '위치', '교통', '크기'], values: [30, 25, 25, 20] }, options: [ "크기가 가장 중요합니다.", "월세가 가장 중요합니다.", "위치가 교통보다 많습니다.", "교통이 월세보다 많습니다." ], answer: 1, explanation: "월세가 30%로 가장 중요한 조건입니다." },
+                    { id: 17, title: "17. 다음은 휴가 때 하고 싶은 활동을 조사한 결과입니다. 설명으로 맞는 것은 무엇입니까?", topic: "휴가 (Vacation)", chartType: "bar", unit: "%", data: { labels: ['고향 방문', '여행', '휴식', '친구 만나기'], values: [35, 30, 20, 15] }, options: [ "친구 만나기가 가장 많습니다.", "휴식이 여행보다 많습니다.", "고향 방문이 가장 많습니다.", "여행과 친구 만나기의 합은 50% 이상입니다." ], answer: 2, explanation: "고향 방문이 35%로 가장 많습니다." },
+                    { id: 18, title: "18. 다음은 외국인 근로자들이 좋아하는 취미입니다. 설명으로 맞는 것은 무엇입니까?", topic: "취미 (Hobbies)", chartType: "bar", unit: "%", data: { labels: ['운동', '영화', '음악', '독서'], values: [30, 25, 25, 20] }, options: [ "운동이 가장 많습니다.", "음악이 가장 많습니다.", "독서가 영화보다 적습니다.", "영화는 10% 입니다." ], answer: 0, explanation: "운동이 30%로 가장 인기 있습니다." },
+                    { id: 19, title: "19. 다음은 한국 음식의 재료를 구입하는 비율입니다. 설명으로 맞는 것은 무엇입니까?", topic: "요리 (Cooking Ingredients)", chartType: "bar", unit: "%", data: { labels: ['채소', '고기', '쌀', '양념'], values: [30, 25, 25, 20] }, options: [ "양념이 가장 많습니다.", "채소가 가장 많습니다.", "고기와 쌀의 비율은 다릅니다.", "쌀이 채소보다 많습니다." ], answer: 1, explanation: "채소가 30%로 가장 구매 비율이 높습니다." },
+                    { id: 20, title: "20. 다음은 스마트폰을 사용하는 목적입니다. 설명으로 맞는 것은 무엇입니까?", topic: "인터넷과 스마트폰 (Smartphone Usage)", chartType: "pie", unit: "%", data: { labels: ['메신저', '동영상', '정보 검색', '쇼핑'], values: [40, 25, 20, 15] }, options: [ "쇼핑이 가장 많습니다.", "메신저가 가장 많습니다.", "동영상이 메신저보다 많습니다.", "정보 검색은 5% 입니다." ], answer: 1, explanation: "메신저 사용이 40%로 가장 많습니다." }
+                ]
+            },
+            "exam_reading_2": {
+                id: "exam_reading_2",
+                title: "Graphs and Charts Test 2",
+                subtitle: "Reading Practice Test 2 (Questions 1–20)",
+                badge: "읽기 (Reading)",
+                description: "20가지 심화 그래프 및 차트 분석 실전 모의고사 2탄",
+                questions: [
+                    { id: 1, title: "1. 다음은 외국인 근로자의 한국어 학습 방법에 대한 조사 결과입니다. 설명으로 맞는 것은 무엇입니까?", topic: "한국어 공부 (Korean Learning)", chartType: "pie", unit: "%", data: { labels: ['학원', '온라인 강좌', '독학', '친구'], values: [40, 30, 20, 10] }, options: [ "독학이 가장 많습니다.", "학원에서 공부하는 사람이 가장 많습니다.", "친구에게 배우는 사람이 학원보다 많습니다.", "온라인 강좌가 절반 이상입니다." ], answer: 1, explanation: "학원에서 공부하는 사람이 40%로 가장 많습니다." },
+                    { id: 2, title: "2. 다음은 외국인 근로자가 가장 많이 선호하는 야근 수당 비율입니다. 설명으로 맞는 것은 무엇입니까?", topic: "근무 조건 (Work Conditions)", chartType: "bar", unit: "%", data: { labels: ['1.5배', '2.0배', '1.2배', '없음'], values: [50, 35, 10, 5] }, options: [ "1.5배를 선호하는 비율이 가장 높습니다.", "없음을 선택한 사람이 가장 많습니다.", "2.0배가 절반 이상입니다.", "1.2배가 2.0배보다 많습니다." ], answer: 0, explanation: "1.5배를 선호하는 비율이 50%로 가장 높습니다." },
+                    { id: 3, title: "3. 다음은 공장 작업장의 일일 안전 점검 항목 수입니다. 설명으로 맞는 것은 무엇입니까?", topic: "작업장 안전 (Workplace Safety)", chartType: "bar", unit: "개", data: { labels: ['기계', '전기', '소화기', '보호구'], values: [5, 8, 4, 6] }, options: [ "소화기 점검 항목이 가장 많습니다.", "전기 점검 항목이 가장 많습니다.", "보호구가 전기보다 많습니다.", "기계 점검 항목이 10개 이상입니다." ], answer: 1, explanation: "전기 점검 항목이 8개로 가장 많습니다." },
+                    { id: 4, title: "4. 다음은 근로자들의 월평균 저축액 비율입니다. 설명으로 맞는 것은 무엇입니까?", topic: "금융과 저축 (Finance & Savings)", chartType: "pie", unit: "%", data: { labels: ['50만원 이하', '50~100만원', '100~150만원', '150만원 이상'], values: [15, 45, 30, 10] }, options: [ "150만원 이상이 가장 많습니다.", "50~100만원 저축하는 비율이 가장 높습니다.", "50만원 이하가 30% 이상입니다.", "100~150만원이 가장 적습니다." ], answer: 1, explanation: "50~100만원 저축하는 비율이 45%로 가장 높습니다." },
+                    { id: 5, title: "5. 다음은 연간 연차 휴가 사용일수입니다. 설명으로 맞는 것은 무엇입니까?", topic: "휴가 사용 (Vacation Days)", chartType: "line", unit: "일", data: { labels: ['2020년', '2021년', '2022년', '2023년'], values: [5, 7, 10, 12] }, options: [ "연차 휴가 사용일수가 계속 증가했습니다.", "2020년에 가장 많이 사용했습니다.", "2022년과 2023년은 같습니다.", "2021년이 2023년보다 많습니다." ], answer: 0, explanation: "휴가 사용일수가 5일에서 12일로 매년 지속적으로 증가했습니다." },
+                    { id: 6, title: "6. 다음은 기숙사 이용 만족도 조사입니다. 설명으로 맞는 것은 무엇입니까?", topic: "기숙사 생활 (Dormitory Life)", chartType: "pie", unit: "%", data: { labels: ['매우 만족', '만족', '보통', '불만족'], values: [20, 50, 20, 10] }, options: [ "불만족이 가장 많습니다.", "만족한다는 응답이 가장 많습니다.", "매우 만족이 절반 이상입니다.", "보통이 만족보다 많습니다." ], answer: 1, explanation: "'만족' 응답이 50%로 가장 많습니다." },
+                    { id: 7, title: "7. 다음은 병원 방문 목적을 나타낸 그래프입니다. 설명으로 맞는 것은 무엇입니까?", topic: "건강과 병원 (Health & Hospital)", chartType: "bar", unit: "%", data: { labels: ['감기', '외상/상처', '건강검진', '치과 치료'], values: [35, 25, 20, 20] }, options: [ "감기로 인한 방문이 가장 많습니다.", "치과 치료가 가장 많습니다.", "건강검진이 외상보다 많습니다.", "외상/상처 방문이 40% 이상입니다." ], answer: 0, explanation: "감기가 35%로 병원 방문 목적 중 가장 많습니다." },
+                    { id: 8, title: "8. 다음은 외국인 근로자들의 고향 송금 주기입니다. 설명으로 맞는 것은 무엇입니까?", topic: "송금 (Money Remittance)", chartType: "bar", unit: "%", data: { labels: ['매월', '격월', '분기별', '년 1~2회'], values: [60, 20, 15, 5] }, options: [ "매월 송금하는 비율이 가장 높습니다.", "년 1~2회가 매월보다 많습니다.", "분기별 송금이 절반 이상입니다.", "격월 송금이 가장 적습니다." ], answer: 0, explanation: "매월 송금하는 비율이 60%로 과반수 이상을 차지합니다." },
+                    { id: 9, title: "9. 다음은 주로 이용하는 쇼핑장소 조사입니다. 설명으로 맞는 것은 무엇입니까?", topic: "쇼핑 (Shopping Venues)", chartType: "pie", unit: "%", data: { labels: ['대형마트', '온라인 쇼핑몰', '전통시장', '편의점'], values: [35, 40, 15, 10] }, options: [ "편의점을 가장 많이 이용합니다.", "온라인 쇼핑몰 이용 비율이 가장 높습니다.", "전통시장이 대형마트보다 많습니다.", "대형마트가 온라인 쇼핑몰보다 많습니다." ], answer: 1, explanation: "온라인 쇼핑몰이 40%로 가장 높습니다." },
+                    { id: 10, title: "10. 다음은 사업장 변경 이유를 조사한 결과입니다. 설명으로 맞는 것은 무엇입니까?", topic: "직장 이직 (Job Change)", chartType: "bar", unit: "%", data: { labels: ['임금 체불', '근무 환경', '인간관계', '계약 만료'], values: [30, 40, 10, 20] }, options: [ "인간관계가 가장 큰 이유입니다.", "근무 환경이 가장 큰 이유입니다.", "계약 만료가 임금 체불보다 많습니다.", "임금 체불이 50% 이상입니다." ], answer: 1, explanation: "근무 환경이 40%로 가장 큰 이유로 조사되었습니다." },
+                    { id: 11, title: "11. 다음은 퇴근 후 취미 활동 시간을 나타낸 차트입니다. 설명으로 맞는 것은 무엇입니까?", topic: "여가 활동 (Leisure Time)", chartType: "bar", unit: "시간", data: { labels: ['운동', '독서', '게임', 'TV 시청'], values: [1, 0.5, 2, 1.5] }, options: [ "독서 시간이 가장 깁니다.", "게임 시간이 가장 깁니다.", "운동이 TV 시청보다 깁니다.", "게임 시간은 1시간입니다." ], answer: 1, explanation: "게임 시간이 2시간으로 가장 깁니다." },
+                    { id: 12, title: "12. 다음은 한국 문화 중 가장 관심 있는 분야입니다. 설명으로 맞는 것은 무엇입니까?", topic: "한국 문화 (Korean Culture)", chartType: "pie", unit: "%", data: { labels: ['K-POP/음악', '드라마/영화', '한식/음식', '태권도/스포츠'], values: [35, 30, 25, 10] }, options: [ "태권도가 가장 인기 있습니다.", "K-POP/음악에 대한 관심이 가장 높습니다.", "한식이 드라마보다 관심도가 높습니다.", "드라마/영화가 40% 이상입니다." ], answer: 1, explanation: "K-POP/음악이 35%로 가장 관심도가 높습니다." },
+                    { id: 13, title: "13. 다음은 사업장 내 안전사고 발생 유형입니다. 설명으로 맞는 것은 무엇입니까?", topic: "안전 사고 (Safety Accidents)", chartType: "bar", unit: "%", data: { labels: ['넘어짐', '끼임', '절단', '낙하물'], values: [20, 45, 25, 10] }, options: [ "낙하물 사고가 가장 많습니다.", "끼임 사고가 가장 많이 발생합니다.", "절단 사고가 끼임 사고보다 많습니다.", "넘어짐 사고가 절반 이상입니다." ], answer: 1, explanation: "끼임 사고가 45%로 가장 많이 발생합니다." },
+                    { id: 14, title: "14. 다음은 통근버스 이용 만족도 요인입니다. 설명으로 맞는 것은 무엇입니까?", topic: "교통 편의 (Commute Convenience)", chartType: "bar", unit: "%", data: { labels: ['배차 시간', '좌석 쾌적성', '운전 안전성', '노선 적절성'], values: [40, 20, 25, 15] }, options: [ "노선 적절성이 가장 높은 만족도를 보입니다.", "배차 시간이 가장 중요하게 평가되었습니다.", "좌석 쾌적성이 운전 안전성보다 높습니다.", "운전 안전성이 50% 이상입니다." ], answer: 1, explanation: "배차 시간이 40%로 가장 높은 만족 비율을 보였습니다." },
+                    { id: 15, title: "15. 다음은 겨울철 주로 사용하는 난방 기구입니다. 설명으로 맞는 것은 무엇입니까?", topic: "계절 용품 (Heating Appliances)", chartType: "pie", unit: "%", data: { labels: ['전기장판', '히터', '온수매트', '난로'], values: [45, 25, 20, 10] }, options: [ "난로를 가장 많이 사용합니다.", "전기장판 이용 비율이 가장 높습니다.", "온수매트가 히터보다 많습니다.", "히터가 절반 이상입니다." ], answer: 1, explanation: "전기장판 사용률이 45%로 가장 높습니다." },
+                    { id: 16, title: "16. 다음은 작업 시 착용하는 보호구의 종류입니다. 설명으로 맞는 것은 무엇입니까?", topic: "보호구 착용 (Safety Gear)", chartType: "bar", unit: "%", data: { labels: ['안전모', '안전화', '보호안경', '귀마개'], values: [30, 40, 15, 15] }, options: [ "보호안경이 가장 많습니다.", "안전화를 가장 많이 착용합니다.", "귀마개가 안전모보다 많습니다.", "안전모가 안전화보다 많습니다." ], answer: 1, explanation: "안전화가 40%로 가장 착용 비율이 높습니다." },
+                    { id: 17, title: "17. 다음은 한국 생활에서 가장 어려운 점을 나타낸 그래프입니다. 설명으로 맞는 것은 무엇입니까?", topic: "한국 생활 (Life in Korea)", chartType: "bar", unit: "%", data: { labels: ['언어 소통', '음식 적응', '외로움', '기후 차이'], values: [50, 20, 20, 10] }, options: [ "기후 차이가 가장 힘든 점입니다.", "언어 소통이 가장 큰 어려움입니다.", "음식 적응이 언어 소통보다 어렵습니다.", "외로움이 절반 이상입니다." ], answer: 1, explanation: "언어 소통이 50%로 가장 큰 어려움으로 꼽혔습니다." },
+                    { id: 18, title: "18. 다음은 주말에 친구들과 만나는 장소입니다. 설명으로 맞는 것은 무엇입니까?", topic: "주말 모임 (Weekend Gathering)", chartType: "pie", unit: "%", data: { labels: ['식당', '공원', '카페', '체육관'], values: [35, 30, 25, 10] }, options: [ "체육관이 가장 많습니다.", "식당에서 만나는 비율이 가장 높습니다.", "카페가 공원보다 많습니다.", "공원이 식당보다 많습니다." ], answer: 1, explanation: "식당이 35%로 친구들과 만나는 장소 1위입니다." },
+                    { id: 19, title: "19. 다음은 하루 수면 시간 조사입니다. 설명으로 맞는 것은 무엇입니까?", topic: "수면 건강 (Sleep Habits)", chartType: "bar", unit: "%", data: { labels: ['5시간 이하', '6시간', '7시간', '8시간 이상'], values: [15, 40, 35, 10] }, options: [ "8시간 이상 자는 사람이 가장 많습니다.", "6시간 자는 사람이 가장 많습니다.", "5시간 이하가 7시간보다 많습니다.", "7시간이 50% 이상입니다." ], answer: 1, explanation: "6시간 수면이 40%로 가장 높은 비중을 나타냅니다." },
+                    { id: 20, title: "20. 다음은 재활용품 분리배출 항목 비율입니다. 설명으로 맞는 것은 무엇입니까?", topic: "환경과 분리수거 (Recycling)", chartType: "pie", unit: "%", data: { labels: ['플라스틱', '종이', '캔/고철', '유리병'], values: [40, 30, 20, 10] }, options: [ "유리병 배출이 가장 많습니다.", "플라스틱 분리배출이 가장 많습니다.", "캔/고철이 종이보다 많습니다.", "종이가 플라스틱보다 많습니다." ], answer: 1, explanation: "플라스틱 배출 비율이 40%로 가장 높습니다." }
+                ]
+            },
+            "exam_noun_noun_100": {
+                title: "Korean Vocabulary: Noun-to-Noun & Categories (100 Items)",
+                description: "Comprehensive exam testing noun relationships, household items, family, clothing, and categories based on official study lists.",
+                questions: [
+                    { q: "What category do 텔레비전, 냉장고, 세탁기, 다리미, 컴퓨터 belong to?", options: ["가전제품", "가구", "의복", "악기"], answer: 0 },
+                    { q: "What category do 옷장, 책상, 의자, 식탁, 침대, 소파 belong to?", options: ["주택", "가구", "의복", "취미"], answer: 1 },
+                    { q: "What category do 주택, 아파트, 방, 거실, 부엌 belong to?", options: ["직장", "집", "계절", "교통수단"], answer: 1 },
+                    { q: "What category do 의복, 한복, 자켓, 티셔츠, 바지, 반바지 belong to?", options: ["학용품/사무용품", "보호구", "의복", "유제품"], answer: 2 },
+                    { q: "What category do 기타, 피아노, 드럼, 북, 피리 belong to?", options: ["운동", "악기", "취미", "명절"], answer: 1 },
+                    { q: "What category do 축구, 농구, 야구, 배구, 탁구, 배드민턴 belong to?", options: ["스포츠/운동", "직장", "여행", "교실"], answer: 0 },
+                    { q: "What category do 동료, 근무, 월급, 회식 belong to?", options: ["가족", "직장", "계절", "우체국"], answer: 1 },
+                    { q: "What category do 할아버지, 할머니, 아버지, 어머니, 형, 동생, 누나, 아들, 딸 belong to?", options: ["가족", "친구", "은행", "얼굴"], answer: 0 },
+                    { q: "What category do 봄, 여름, 가을, 겨울 belong to?", options: ["날씨", "계절", "여행", "기념일"], answer: 1 },
+                    { q: "What category do 기차표, 비행기표, 집, 숙소, 기념품 belong to?", options: ["교통수단", "여행", "취미", "우체국"], answer: 1 },
+                    { q: "What category do 독서, 등산, 수영, 요리, 축구 belong to?", options: ["취미", "직장", "가전제품", "유제품"], answer: 0 },
+                    { q: "What category do 공책, 칼, 자, 연필 belong to?", options: ["학용품/사무용품", "보호구", "교실", "교통수단"], answer: 0 },
+                    { q: "What category do 버스, 택시, 지하철, 기차 belong to?", options: ["교통수단", "보호구", "은행", "얼굴"], answer: 0 },
+                    { q: "What category do 보안경, 안전화, 귀마개, 목장갑 belong to?", options: ["보호구", "의복", "학용품", "가구"], answer: 0 },
+                    { q: "What category do 책, 의자, 칠판, 교사 belong to?", options: ["교실", "우체국", "은행", "집"], answer: 0 },
+                    { q: "What category do 편지, 엽서, 소포 belong to?", options: ["우체국", "교실", "은행", "가전제품"], answer: 0 },
+                    { q: "What category do 예금, 출금, 송금, 환전 belong to?", options: ["은행", "우체국", "직장", "집"], answer: 0 },
+                    { q: "What category do 우유, 치즈, 버터, 분유 belong to?", options: ["유제품", "음식", "과일", "채소"], answer: 0 },
+                    { q: "What category do 눈, 코, 입, 귀 belong to?", options: ["얼굴", "몸", "의복", "가족"], answer: 0 },
+                    { q: "What category do 설날, 추석, 정월대보름/생일, 스승의 날, 어버이 날 belong to?", options: ["명절/기념일", "계절", "취미", "여행"], answer: 0 },
+                    { q: "Which of the following is listed under 가전제품 (Home Appliances)?", options: ["냉장고", "침대", "티셔츠", "피아노"], answer: 0 },
+                    { q: "Which of the following is listed under 가전제품 (Home Appliances)?", options: ["세탁기", "소파", "바지", "드럼"], answer: 0 },
+                    { q: "Which of the following is listed under 가전제품 (Home Appliances)?", options: ["컴퓨터", "책상", "한복", "북"], answer: 0 },
+                    { q: "Which of the following is listed under 가구 (Furniture)?", options: ["옷장", "냉장고", "축구", "버스"], answer: 0 },
+                    { q: "Which of the following is listed under 가구 (Furniture)?", options: ["식탁", "세탁기", "야구", "기차"], answer: 0 },
+                    { q: "Which of the following is listed under 가구 (Furniture)?", options: ["침대", "텔레비전", "농구", "택시"], answer: 0 },
+                    { q: "Which of the following is listed under 집 (House/Home)?", options: ["아파트", "사무실", "공장", "학교"], answer: 0 },
+                    { q: "Which of the following is listed under 집 (House/Home)?", options: ["거실", "월급", "우유", "귀마개"], answer: 0 },
+                    { q: "Which of the following is listed under 의복 (Clothing)?", options: ["자켓", "침대", "냉장고", "축구"], answer: 0 },
+                    { q: "Which of the following is listed under 의복 (Clothing)?", options: ["반바지", "소파", "세탁기", "농구"], answer: 0 },
+                    { q: "Which of the following is listed under 악기 (Musical Instruments)?", options: ["피아노", "티셔츠", "책상", "냉장고"], answer: 0 },
+                    { q: "Which of the following is listed under 악기 (Musical Instruments)?", options: ["피리", "바지", "의자", "세탁기"], answer: 0 },
+                    { q: "Which of the following is listed under 스포츠/운동 (Sports/Exercise)?", options: ["배구", "컴퓨터", "냉장고", "치즈"], answer: 0 },
+                    { q: "Which of the following is listed under 스포츠/운동 (Sports/Exercise)?", options: ["배드민턴", "텔레비전", "침대", "우유"], answer: 0 },
+                    { q: "Which of the following is listed under 직장 (Workplace)?", options: ["근무", "할아버지", "여름", "축구"], answer: 0 },
+                    { q: "Which of the following is listed under 직장 (Workplace)?", options: ["회식", "어머니", "겨울", "농구"], answer: 0 },
+                    { q: "Which of the following is listed under 가족 (Family)?", options: ["할머니", "동료", "기차", "냉장고"], answer: 0 },
+                    { q: "Which of the following is listed under 가족 (Family)?", options: ["누나", "근무", "버스", "세탁기"], answer: 0 },
+                    { q: "Which of the following is listed under 계절 (Seasons)?", options: ["가을", "축구", "월급", "책상"], answer: 0 },
+                    { q: "Which of the following is listed under 계절 (Seasons)?", options: ["여름", "야구", "회식", "의자"], answer: 0 },
+                    { q: "Which of the following is listed under 여행 (Travel)?", options: ["숙소", "냉장고", "근무", "우유"], answer: 0 },
+                    { q: "Which of the following is listed under 여행 (Travel)?", options: ["기념품", "세탁기", "월급", "치즈"], answer: 0 },
+                    { q: "Which of the following is listed under 취미 (Hobbies)?", options: ["등산", "아파트", "할아버지", "지하철"], answer: 0 },
+                    { q: "Which of the following is listed under 취미 (Hobbies)?", options: ["수영", "주택", "어머니", "버스"], answer: 0 },
+                    { q: "Which of the following is listed under 학용품/사무용품 (School/Office Supplies)?", options: ["연필", "티셔츠", "축구", "냉장고"], answer: 0 },
+                    { q: "Which of the following is listed under 학용품/사무용품 (School/Office Supplies)?", options: ["공책", "자켓", "야구", "세탁기"], answer: 0 },
+                    { q: "Which of the following is listed under 교통수단 (Transportation)?", options: ["지하철", "침대", "할머니", "공책"], answer: 0 },
+                    { q: "Which of the following is listed under 교통수단 (Transportation)?", options: ["택시", "소파", "누나", "연필"], answer: 0 },
+                    { q: "Which of the following is listed under 보호구 (Protective Gear)?", options: ["안전화", "피아노", "여름", "우유"], answer: 0 },
+                    { q: "Which of the following is listed under 보호구 (Protective Gear)?", options: ["목장갑", "기타", "겨울", "치즈"], answer: 0 },
+                    { q: "Which of the following is listed under 교실 (Classroom)?", options: ["칠판", "냉장고", "축구", "기차"], answer: 0 },
+                    { q: "Which of the following is listed under 교실 (Classroom)?", options: ["교사", "세탁기", "야구", "버스"], answer: 0 },
+                    { q: "Which of the following is listed under 우체국 (Post Office)?", options: ["엽서", "침대", "농구", "여름"], answer: 0 },
+                    { q: "Which of the following is listed under 우체국 (Post Office)?", options: ["소포", "소파", "배구", "겨울"], answer: 0 },
+                    { q: "Which of the following is listed under 은행 (Bank)?", options: ["송금", "할아버지", "냉장고", "책상"], answer: 0 },
+                    { q: "Which of the following is listed under 은행 (Bank)?", options: ["환전", "어머니", "세탁기", "의자"], answer: 0 },
+                    { q: "Which of the following is listed under 유제품 (Dairy Products)?", options: ["버터", "축구", "교사", "기차"], answer: 0 },
+                    { q: "Which of the following is listed under 유제품 (Dairy Products)?", options: ["치즈", "야구", "학생", "버스"], answer: 0 },
+                    { q: "Which of the following is listed under 얼굴 (Face)?", options: ["코", "냉장고", "가을", "지하철"], answer: 0 },
+                    { q: "Which of the following is listed under 얼굴 (Face)?", options: ["귀", "세탁기", "여름", "택시"], answer: 0 },
+                    { q: "Which of the following is listed under 명절/기념일 (Holidays/Anniversaries)?", options: ["추석", "침대", "공책", "안전화"], answer: 0 },
+                    { q: "Which of the following is listed under 명절/기념일 (Holidays/Anniversaries)?", options: ["생일", "소파", "연필", "목장갑"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 가전제품?", options: ["텔레비전", "소파", "바지", "피아노"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 가전제품?", options: ["다리미", "침대", "티셔츠", "드럼"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 가구?", options: ["책상", "냉장고", "축구", "버스"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 가구?", options: ["의자", "세탁기", "야구", "기차"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 집?", options: ["아파트", "월급", "우유", "보안경"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 집?", options: ["부엌", "근무", "치즈", "귀마개"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 의복?", options: ["한복", "침대", "냉장고", "피아노"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 의복?", options: ["자켓", "소파", "세탁기", "기타"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 악기?", options: ["드럼", "티셔츠", "책상", "냉장고"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 악기?", options: ["북", "바지", "의자", "세탁기"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 스포츠/운동?", options: ["농구", "컴퓨터", "냉장고", "치즈"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 스포츠/운동?", options: ["야구", "텔레비전", "침대", "우유"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 직장?", options: ["월급", "할아버지", "여름", "축구"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 직장?", options: ["회식", "어머니", "겨울", "농구"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 가족?", options: ["할아버지", "동료", "기차", "냉장고"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 가족?", options: ["동생", "근무", "버스", "세탁기"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 계절?", options: ["겨울", "축구", "월급", "책상"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 계절?", options: ["봄", "야구", "회식", "의자"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 여행?", options: ["기차표", "냉장고", "근무", "우유"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 여행?", options: ["비행기표", "세탁기", "월급", "치즈"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 취미?", options: ["독서", "아파트", "할아버지", "지하철"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 취미?", options: ["등산", "주택", "어머니", "버스"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 학용품/사무용품?", options: ["칼", "티셔츠", "축구", "냉장고"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 학용품/사무용품?", options: ["자", "자켓", "야구", "세탁기"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 교통수단?", options: ["버스", "침대", "할머니", "공책"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 교통수단?", options: ["택시", "소파", "누나", "연필"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 보호구?", options: ["보안경", "피아노", "여름", "우유"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 보호구?", options: ["안전화", "기타", "겨울", "치즈"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 교실?", options: ["의자", "냉장고", "축구", "기차"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 교실?", options: ["책", "세탁기", "야구", "버스"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 우체국?", options: ["편지", "침대", "농구", "여름"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 우체국?", options: ["엽서", "소파", "배구", "겨울"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 은행?", options: ["예금", "할아버지", "냉장고", "책상"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 은행?", options: ["출금", "어머니", "세탁기", "의자"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 유제품?", options: ["우유", "축구", "교사", "기차"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 유제품?", options: ["버터", "야구", "학생", "버스"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 얼굴?", options: ["눈", "냉장고", "가을", "지하철"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 얼굴?", options: ["입", "세탁기", "여름", "택시"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 명절/기념일?", options: ["설날", "침대", "공책", "안전화"], answer: 0 },
+                    { q: "Pair check: Which noun goes with 명절/기념일?", options: ["정월대보름", "소파", "연필", "목장갑"], answer: 0 },
+                    { q: "Select the group that represents '가구' (Furniture):", options: ["침대, 소파, 의자", "냉장고, 세탁기, 다리미", "티셔츠, 바지, 한복", "버스, 택시, 지하철"], answer: 0 },
+                    { q: "Select the group that represents '가전제품' (Home Appliances):", options: ["텔레비전, 냉장고, 세탁기", "책상, 의자, 침대", "봄, 여름, 가을", "눈, 코, 입, 귀"], answer: 0 },
+                    { q: "Select the group that represents '교통수단' (Transportation):", options: ["버스, 택시, 지하철, 기차", "사과, 감자, 고구마", "축구, 야구, 농구", "할아버지, 어머니, 형"], answer: 0 },
+                    { q: "Select the group that represents '계절' (Seasons):", options: ["봄, 여름, 가을, 겨울", "독서, 등산, 수영", "예금, 출금, 송금", "편지, 엽서, 소포"], answer: 0 },
+                    { q: "Select the group that represents '얼굴' (Face):", options: ["눈, 코, 입, 귀", "우유, 치즈, 버터", "공책, 칼, 자", "안전화, 귀마개"], answer: 0 },
+                    { q: "Select the group that represents '가족' (Family):", options: ["어머니, 아버지, 형, 동생", "지하철, 버스, 택시", "회식, 근무, 동료", "가을, 겨울, 봄"], answer: 0 },
+                    { q: "Select the group that represents '취미' (Hobbies):", options: ["독서, 등산, 수영, 요리", "설날, 추석, 생일", "예금, 환전, 송금", "냉장고, 세탁기, 다리미"], answer: 0 },
+                    { q: "Select the group that represents '은행' (Bank):", options: ["예금, 출금, 송금, 환전", "의복, 한복, 자켓", "주택, 아파트, 방", "기타, 피아노, 드럼"], answer: 0 },
+                    { q: "Select the group that represents '우체국' (Post Office):", options: ["편지, 엽서, 소포", "눈, 코, 입, 귀", "봄, 여름, 가을", "우유, 치즈, 버터"], answer: 0 },
+                    { q: "Select the group that represents '보호구' (Protective Gear):", options: ["보안경, 안전화, 귀마개, 목장갑", "축구, 농구, 야구, 배구", "텔레비전, 라디오, 냉장고", "책, 의자, 칠판, 교사"], answer: 0 },
+                    { q: "Select the matching pair for '의복' (Clothing):", options: ["한복, 티셔츠, 바지", "식탁, 침대, 소파", "부엌, 거실, 방", "북, 피리, 피아노"], answer: 0 },
+                    { q: "Select the matching pair for '악기' (Instruments):", options: ["기타, 피아노, 드럼", "축구, 농구, 야구", "봄, 여름, 가을", "버스, 택시, 기차"], answer: 0 },
+                    { q: "Select the matching pair for '스포츠/운동' (Sports):", options: ["축구, 농구, 배구", "근무, 월급, 회식", "독서, 등산, 수영", "예금, 출금, 송금"], answer: 0 },
+                    { q: "Select the matching pair for '직장' (Workplace):", options: ["동료, 근무, 월급", "아버지, 어머니, 아들", "집, 숙소, 기념품", "칼, 자, 연필"], answer: 0 },
+                    { q: "Select the matching pair for '유제품' (Dairy):", options: ["우유, 치즈, 버터", "눈, 코, 입, 귀", "설날, 추석, 생일", "보안경, 안전화"], answer: 0 },
+                    { q: "What category does '아파트' belong to?", options: ["집", "가구", "의복", "악기"], answer: 0 },
+                    { q: "What category does '자켓' belong to?", options: ["의복", "가전제품", "보호구", "교통수단"], answer: 0 },
+                    { q: "What category does '드럼' belong to?", options: ["악기", "스포츠", "취미", "직장"], answer: 0 },
+                    { q: "What category does '지하철' belong to?", options: ["교통수단", "교실", "우체국", "은행"], answer: 0 },
+                    { q: "What category does '안전화' belong to?", options: ["보호구", "의복", "가구", "가전제품"], answer: 0 }
+                ]
+            },
+            "exam_noun_verb_adj_100": {
+                title: "Korean Vocabulary: Noun to Verbs & Adjectives (100 Items)",
+                description: "Comprehensive exam testing verbs and adjectives associated with specific nouns (actions, states, properties) based on study modules.",
+                questions: [
+                    { q: "What verb/adjective matches 난로, 스위치, 선풍기, 휴대전화?", options: ["켜다/끄다", "보디", "캐다", "신청하다"], answer: 0 },
+                    { q: "What verb matches 시험, 면접, 텔레비전, 콘서트, 영화?", options: ["보다", "타다", "따다", "치다"], answer: 0 },
+                    { q: "What verb matches 감자, 고구마?", options: ["캐다", "타다", "짓다", "뽑다"], answer: 0 },
+                    { q: "What adjective matches 감정 (Emotions)?", options: ["기쁘다, 슬프다, 화나다, 무섭다, 불안하다", "가볍다, 무겁다", "가깝다, 멀다", "짧다, 길다"], answer: 0 },
+                    { q: "What verb matches 비자, 여권, 휴가, 보험금?", options: ["신청하다", "지키다", "돌리다", "따다"], answer: 0 },
+                    { q: "What verb matches 법, 규칙, 약속, 예의?", options: ["지키다", "신청하다", "뽑다", "깎다"], answer: 0 },
+                    { q: "What adjective matches 무게 (Weight)?", options: ["가볍다, 무겁다", "가깝다, 멀다", "짧다, 길다", "기쁘다, 슬프다"], answer: 0 },
+                    { q: "What adjective matches 거리 (Distance)?", options: ["가깝다, 멀다", "가볍다, 무겁다", "짧다, 길다", "화나다, 무섭다"], answer: 0 },
+                    { q: "What adjective matches 길이 (Length)?", options: ["짧다, 길다", "가깝다, 멀다", "가볍다, 무겁다", "기쁘다, 슬프다"], answer: 0 },
+                    { q: "What verb matches 집, 밥, 미소, 농사, 건물?", options: ["짓다", "타다", "따다", "치다"], answer: 0 },
+                    { q: "What verb matches 세탁기, 고개, 허리, 청소기?", options: ["돌리다", "타다", "따다", "치다"], answer: 0 },
+                    { q: "What verb matches 자격증, 사과, 고추, 버섯?", options: ["따다", "타다", "치다", "뽑다"], answer: 0 },
+                    { q: "What verb matches 지하철, 월급, 커피?", options: ["타다", "따다", "치다", "짓다"], answer: 0 },
+                    { q: "What verb matches 테니스, 번개, 농약, 텐트, 그물, 기타?", options: ["치다", "타다", "따다", "뽑다"], answer: 0 },
+                    { q: "What verb matches 카드, 번호표, 플러그?", options: ["뽑다", "치다", "타다", "따다"], answer: 0 },
+                    { q: "What verb matches 치우다?", options: ["방, 쓰레기 (Room, Trash)", "사과, 머리", "오해, 스트레스", "비자, 여권"], answer: 0 },
+                    { q: "What verb matches 풀다?", options: ["오해, 스트레스, 문제, 네크타이", "집, 밥, 미소", "지하철, 월급", "자격증, 사과"], answer: 0 },
+                    { q: "What verb matches 깎다?", options: ["가격, 연필, 사과, 머리", "카드, 번호표", "방, 쓰레기", "법, 규칙"], answer: 0 },
+                    { q: "Which verbs are associated with 난로, 스위치, 선풍기, 휴대전화?", options: ["켜다, 끄다", "보다, 듣다", "타다, 내리다", "따다, 심다"], answer: 0 },
+                    { q: "Which verb is associated with 시험, 면접, 영화?", options: ["보다", "캐다", "짓다", "뽑다"], answer: 0 },
+                    { q: "Which verb is associated with 감자, 고구마?", options: ["캐다", "보다", "타다", "치다"], answer: 0 },
+                    { q: "Which adjectives describe 감정 (Emotions)?", options: ["기쁘다, 슬프다, 화나다", "가볍다, 무겁다", "가깝다, 멀다", "짧다, 길다"], answer: 0 },
+                    { q: "Which verb is associated with 비자, 여권, 보험금?", options: ["신청하다", "지키다", "돌리다", "치다"], answer: 0 },
+                    { q: "Which verb is associated with 법, 규칙, 약속?", options: ["지키다", "신청하다", "타다", "따다"], answer: 0 },
+                    { q: "Which adjectives describe 무게 (Weight)?", options: ["가볍다, 무겁다", "짧다, 길다", "가깝다, 멀다", "기쁘다, 슬프다"], answer: 0 },
+                    { q: "Which adjectives describe 거리 (Distance)?", options: ["가깝다, 멀다", "가볍다, 무겁다", "짧다, 길다", "화나다, 무섭다"], answer: 0 },
+                    { q: "Which adjectives describe 길이 (Length)?", options: ["짧다, 길다", "가깝다, 멀다", "가볍다, 무겁다", "기쁘다, 슬프다"], answer: 0 },
+                    { q: "Which verb is associated with 집, 밥, 미소, 건물?", options: ["짓다", "타다", "따다", "뽑다"], answer: 0 },
+                    { q: "Which verb is associated with 세탁기, 고개, 허리?", options: ["돌리다", "따다", "치다", "짓다"], answer: 0 },
+                    { q: "Which verb is associated with 자격증, 사과, 버섯?", options: ["따다", "타다", "치다", "뽑다"], answer: 0 },
+                    { q: "Which verb is associated with 지하철, 월급, 커피?", options: ["타다", "따다", "치다", "짓다"], answer: 0 },
+                    { q: "Which verb is associated with 테니스, 번개, 농약?", options: ["치다", "타다", "따다", "뽑다"], answer: 0 },
+                    { q: "Which verb is associated with 카드, 번호표, 플러그?", options: ["뽑다", "치다", "타다", "따다"], answer: 0 },
+                    { q: "Which verb is associated with 쓰레기, 방?", options: ["치우다", "풀다", "깎다", "캐다"], answer: 0 },
+                    { q: "Which verb is associated with 오해, 스트레스, 문제?", options: ["풀다", "치우다", "깎다", "짓다"], answer: 0 },
+                    { q: "Which verb is associated with 가격, 연필, 사과, 머리?", options: ["깎다", "뽑다", "타다", "지키다"], answer: 0 },
+                    { q: "Match action: What do you do with '난로' or '스위치'?", options: ["켜다/끄다", "보다", "캐다", "타다"], answer: 0 },
+                    { q: "Match action: What do you do with '시험' or '면접'?", options: ["보다", "짓다", "돌리다", "따다"], answer: 0 },
+                    { q: "Match action: What do you do with '감자'?", options: ["캐다", "타다", "치다", "뽑다"], answer: 0 },
+                    { q: "Match action: What do you do with '비자' or '여권'?", options: ["신청하다", "지키다", "돌리다", "풀다"], answer: 0 },
+                    { q: "Match action: What do you do with '법' or '규칙'?", options: ["지키다", "신청하다", "타다", "따다"], answer: 0 },
+                    { q: "Match action: What do you do with '밥' or '집'?", options: ["짓다", "돌리다", "타다", "치다"], answer: 0 },
+                    { q: "Match action: What do you do with '세탁기'?", options: ["돌리다", "따다", "치다", "뽑다"], answer: 0 },
+                    { q: "Match action: What do you do with '자격증'?", options: ["따다", "타다", "치다", "짓다"], answer: 0 },
+                    { q: "Match action: What do you do with '지하철' or '월급'?", options: ["타다", "따다", "치다", "뽑다"], answer: 0 },
+                    { q: "Match action: What do you do with '테니스' or '번개'?", options: ["치다", "타다", "따다", "짓다"], answer: 0 },
+                    { q: "Match action: What do you do with '번호표' or '플러그'?", options: ["뽑다", "치다", "타다", "따다"], answer: 0 },
+                    { q: "Match action: What do you do with '쓰레기'?", options: ["치우다", "풀다", "깎다", "캐다"], answer: 0 },
+                    { q: "Match action: What do you do with '스트레스' or '문제'?", options: ["풀다", "치우다", "깎다", "지키다"], answer: 0 },
+                    { q: "Match action: What do you do with '가격' or '연필'?", options: ["깎다", "뽑다", "타다", "따다"], answer: 0 },
+                    { q: "Select the correct adjective for '무게' (Weight):", options: ["가볍다, 무겁다", "가깝다, 멀다", "짧다, 길다", "기쁘다, 슬프다"], answer: 0 },
+                    { q: "Select the correct adjective for '거리' (Distance):", options: ["가깝다, 멀다", "가볍다, 무겁다", "짧다, 길다", "화나다, 무섭다"], answer: 0 },
+                    { q: "Select the correct adjective for '길이' (Length):", options: ["짧다, 길다", "가깝다, 멀다", "가볍다, 무겁다", "기쁘다, 슬프다"], answer: 0 },
+                    { q: "Select the correct adjective group for '감정' (Emotions):", options: ["기쁘다, 슬프다, 화나다, 무섭다", "가볍다, 무겁다", "가깝다, 멀다", "짧다, 길다"], answer: 0 },
+                    { q: "Which combination correctly matches '집, 밥, 미소'?", options: ["짓다", "타다", "따다", "치다"], answer: 0 },
+                    { q: "Which combination correctly matches '사과, 고추, 버섯'?", options: ["따다", "타다", "치다", "짓다"], answer: 0 },
+                    { q: "Which combination correctly matches '월급, 커피, 지하철'?", options: ["타다", "따다", "치다", "뽑다"], answer: 0 },
+                    { q: "Which combination correctly matches '테니스, 그물, 기타'?", options: ["치다", "타다", "따다", "짓다"], answer: 0 },
+                    { q: "Which combination correctly matches '카드, 플러그'?", options: ["뽑다", "치다", "타다", "따다"], answer: 0 },
+                    { q: "Which combination correctly matches '쓰레기, 방'?", options: ["치우다", "풀다", "깎다", "캐다"], answer: 0 },
+                    { q: "Which combination correctly matches '오해, 문제'?", options: ["풀다", "치우다", "깎다", "짓다"], answer: 0 },
+                    { q: "Which combination correctly matches '머리, 사과, 연필'?", options: ["깎다", "뽑다", "타다", "따다"], answer: 0 },
+                    { q: "What is the primary action for '선풍기' or '스위치'?", options: ["켜다/끄다", "보다", "캐다", "타다"], answer: 0 },
+                    { q: "What is the primary action for '면접' or '콘서트'?", options: ["보다", "짓다", "돌리다", "따다"], answer: 0 },
+                    { q: "What is the primary action for '고구마'?", options: ["캐다", "타다", "치다", "뽑다"], answer: 0 },
+                    { q: "What is the primary action for '휴가' or '보험금'?", options: ["신청하다", "지키다", "돌리다", "풀다"], answer: 0 },
+                    { q: "What is the primary action for '약속' or '예의'?", options: ["지키다", "신청하다", "타다", "따다"], answer: 0 },
+                    { q: "What action is paired with '고개' or '허리'?", options: ["돌리다", "따다", "치다", "짓다"], answer: 0 },
+                    { q: "What action is paired with '농약' or '텐트'?", options: ["치다", "타다", "따다", "뽑다"], answer: 0 },
+                    { q: "What action is paired with '번호표'?", options: ["뽑다", "치다", "타다", "따다"], answer: 0 },
+                    { q: "What action is paired with '방' (room cleaning)?", options: ["치우다", "풀다", "깎다", "캐다"], answer: 0 },
+                    { q: "What action is paired with '넥타이'?", options: ["풀다", "치우다", "깎다", "짓다"], answer: 0 },
+                    { q: "What action is paired with '가격'?", options: ["깎다", "뽑다", "타다", "따다"], answer: 0 },
+                    { q: "Which verb matches '텔레비전'?", options: ["보다", "캐다", "짓다", "뽑다"], answer: 0 },
+                    { q: "Which verb matches '감자'?", options: ["캐다", "보다", "타다", "치다"], answer: 0 },
+                    { q: "Which verb matches '비자'?", options: ["신청하다", "지키다", "돌리다", "치다"], answer: 0 },
+                    { q: "Which verb matches '법'?", options: ["지키다", "신청하다", "타다", "따다"], answer: 0 },
+                    { q: "Which verb matches '밥'?", options: ["짓다", "타다", "따다", "뽑다"], answer: 0 },
+                    { q: "Which verb matches '세탁기'?", options: ["돌리다", "따다", "치다", "짓다"], answer: 0 },
+                    { q: "Which verb matches '자격증'?", options: ["따다", "타다", "치다", "뽑다"], answer: 0 },
+                    { q: "Which verb matches '지하철'?", options: ["타다", "따다", "치다", "짓다"], answer: 0 },
+                    { q: "Which verb matches '테니스'?", options: ["치다", "타다", "따다", "뽑다"], answer: 0 },
+                    { q: "Which verb matches '카드'?", options: ["뽑다", "치다", "타다", "따다"], answer: 0 },
+                    { q: "Which verb matches '쓰레기'?", options: ["치우다", "풀다", "깎다", "캐다"], answer: 0 },
+                    { q: "Which verb matches '스트레스'?", options: ["풀다", "치우다", "깎다", "짓다"], answer: 0 },
+                    { q: "Which verb matches '가격'?", options: ["깎다", "뽑다", "타다", "따다"], answer: 0 },
+                    { q: "Which adjective matches '무게'?", options: ["가볍다, 무겁다", "가깝다, 멀다", "짧다, 길다", "기쁘다, 슬프다"], answer: 0 },
+                    { q: "Which adjective matches '거리'?", options: ["가깝다, 멀다", "가볍다, 무겁다", "짧다, 길다", "화나다, 무섭다"], answer: 0 },
+                    { q: "Which adjective matches '길이'?", options: ["짧다, 길다", "가깝다, 멀다", "가볍다, 무겁다", "기쁘다, 슬프다"], answer: 0 },
+                    { q: "Which adjective matches '감정'?", options: ["기쁘다, 슬프다, 화나다", "가볍다, 무겁다", "가깝다, 멀다", "짧다, 길다"], answer: 0 },
+                    { q: "Select the match for '선풍기':", options: ["켜다/끄다", "보다", "캐다", "타다"], answer: 0 },
+                    { q: "Select the match for '면접':", options: ["보다", "짓다", "돌리다", "따다"], answer: 0 },
+                    { q: "Select the match for '고구마':", options: ["캐다", "타다", "치다", "뽑다"], answer: 0 },
+                    { q: "Select the match for '여권':", options: ["신청하다", "지키다", "돌리다", "풀다"], answer: 0 },
+                    { q: "Select the match for '약속':", options: ["지키다", "신청하다", "타다", "따다"], answer: 0 },
+                    { q: "Select the match for '미소':", options: ["짓다", "돌리다", "타다", "치다"], answer: 0 },
+                    { q: "Select the match for '허리':", options: ["돌리다", "따다", "치다", "뽑다"], answer: 0 },
+                    { q: "Select the match for '사과' (harvest):", options: ["따다", "타다", "치다", "짓다"], answer: 0 },
+                    { q: "Select the match for '월급':", options: ["타다", "따다", "치다", "뽑다"], answer: 0 },
+                    { q: "Select the match for '농약':", options: ["치다", "타다", "따다", "짓다"], answer: 0 },
+                    { q: "Select the match for '플러그':", options: ["뽑다", "치다", "타다", "따다"], answer: 0 },
+                    { q: "Select the match for '방':", options: ["치우다", "풀다", "깎다", "캐다"], answer: 0 },
+                    { q: "Select the match for '오해':", options: ["풀다", "치우다", "깎다", "짓다"], answer: 0 },
+                    { q: "Select the match for '연필':", options: ["깎다", "뽑다", "타다", "따다"], answer: 0 }
+                ]
+            },
+            "exam_noun_syn_ant_150": {
+                title: "Korean Vocabulary: Noun Synonyms & Antonyms (150 Items)",
+                description: "Advanced 150-item test covering noun synonyms and antonyms based on official EPS-TOPIK / study lists.",
+                questions: [
+                    { q: "What is the synonym of 달 (month)?", options: ["월", "현금", "야간", "가격"], answer: 0 },
+                    { q: "What is the antonym of 달 (month)?", options: ["낮", "위", "공용", "내부"], answer: 0 },
+                    { q: "What is the synonym of 돈 (money)?", options: ["현금", "달", "값", "중간"], answer: 0 },
+                    { q: "What is the antonym of 돈 (money)?", options: ["주간", "아래", "외부", "무료"], answer: 0 },
+                    { q: "What is the synonym of 밤 (night)?", options: ["야간", "달", "돈", "가격"], answer: 0 },
+                    { q: "What is the antonym of 밤 (night)?", options: ["낮", "위", "공용", "안"], answer: 0 },
+                    { q: "What is the synonym of 가격 (price)?", options: ["값", "돈", "달", "밤"], answer: 0 },
+                    { q: "What is the antonym of 가격 (price)?", options: ["주간", "아래", "외부", "무료"], answer: 0 },
+                    { q: "What is the synonym of 아래 (under, below)?", options: ["밑", "위", "중간", "밖"], answer: 0 },
+                    { q: "What is the antonym of 아래 (under, below)?", options: ["위", "낮", "공용", "내부"], answer: 0 },
+                    { q: "What is the synonym of 중간 (center, middle)?", options: ["가운데", "밖", "구역", "온도"], answer: 0 },
+                    { q: "What is the antonym of 중간 (center, middle)?", options: ["건너편", "위", "아래", "야간"], answer: 0 },
+                    { q: "What is the synonym of 맞은편 (opposite side)?", options: ["건너편", "가운데", "구역", "도구"], answer: 0 },
+                    { q: "What is the synonym of 외부 (outside)?", options: ["바깥", "안", "위", "아래"], answer: 0 },
+                    { q: "What is the antonym of 외부 (outside)?", options: ["내부", "위", "낮", "공용"], answer: 0 },
+                    { q: "What is the synonym of 지역 (area, district)?", options: ["구역", "온도", "도구", "옷차림"], answer: 0 },
+                    { q: "What is the synonym of 기온 (temperature)?", options: ["온도", "지역", "도구", "임금"], answer: 0 },
+                    { q: "What is the synonym of 도구 (tool)?", options: ["공구", "지역", "온도", "직원"], answer: 0 },
+                    { q: "What is the synonym of 복장 (clothes, dress)?", options: ["옷차림", "임금", "조건", "허가"], answer: 0 },
+                    { q: "What is the synonym of 급여 (pay, salary)?", options: ["임금", "복장", "사원", "업무"], answer: 0 },
+                    { q: "What is the synonym of 사원 (employee, staff)?", options: ["직원", "급여", "자격", "요리"], answer: 0 },
+                    { q: "What is the synonym of 자격 (qualification)?", options: ["조건", "사원", "급여", "복장"], answer: 0 },
+                    { q: "What is the synonym of 업무 (work, task)?", options: ["일", "허가", "비자", "사료"], answer: 0 },
+                    { q: "What is the synonym of 허가 (permission)?", options: ["사증", "업무", "자격", "요리"], answer: 0 },
+                    { q: "What is the synonym of 비자 (visa)?", options: ["사증", "허가", "요리", "먹이"], answer: 0 },
+                    { q: "What is the synonym of 요리 (cook)?", options: ["사료", "비자", "허가", "업무"], answer: 0 },
+                    { q: "What is the synonym of 먹이 (feed)?", options: ["사료", "요리", "비자", "허가"], answer: 0 },
+                    { q: "What is the synonym of 노동 (labor)?", options: ["근로", "이유", "기준", "소재"], answer: 0 },
+                    { q: "What is the antonym of 노동 (labor)?", options: ["불결", "결석", "퇴사", "거짓"], answer: 0 },
+                    { q: "What is the synonym of 사유 (reason, cause)?", options: ["이유", "노동", "기준", "위생"], answer: 0 },
+                    { q: "What is the synonym of 표준 (standard)?", options: ["기준", "사유", "소재", "해변"], answer: 0 },
+                    { q: "What is the synonym of 주소 (address)?", options: ["소재지", "표준", "위생", "규칙"], answer: 0 },
+                    { q: "What is the synonym of 위생 (sanitation, cleanliness)?", options: ["청결", "주소", "기준", "가입"], answer: 0 },
+                    { q: "What is the antonym of 위생 (sanitation)?", options: ["불결", "청결", "출석", "취업"], answer: 0 },
+                    { q: "What is the synonym of 바닷가 (beach)?", options: ["해변", "위생", "주소", "규칙"], answer: 0 },
+                    { q: "What is the synonym of 규칙 (rule)?", options: ["수칙", "바닷가", "청결", "가입"], answer: 0 },
+                    { q: "What is the synonym of 출석 (attendance)?", options: ["참석", "결석", "탈퇴", "종강"], answer: 0 },
+                    { q: "What is the antonym of 출석 (attendance)?", options: ["결석", "참석", "가입", "개강"], answer: 0 },
+                    { q: "What is the synonym of 가입 (join)?", options: ["입사", "탈퇴", "퇴사", "폐업"], answer: 0 },
+                    { q: "What is the antonym of 가입 (join)?", options: ["탈퇴", "가입", "출석", "종강"], answer: 0 },
+                    { q: "What is the synonym of 입사 (joining a company)?", options: ["취업", "퇴사", "결석", "거짓"], answer: 0 },
+                    { q: "What is the antonym of 입사 (joining a company)?", options: ["퇴사", "입사", "개강", "수입"], answer: 0 },
+                    { q: "What is the synonym of 진실 (truth)?", options: ["거짓", "개강", "종강", "선불"], answer: 0 },
+                    { q: "What is the antonym of 진실 (truth)?", options: ["거짓", "진실", "최고", "유료"], answer: 0 },
+                    { q: "What is the synonym of 개업 (open)?", options: ["폐업", "개강", "종강", "실내"], answer: 0 },
+                    { q: "What is the antonym of 개업 (open)?", options: ["폐업", "개업", "수입", "무료"], answer: 0 },
+                    { q: "What is the synonym of 개강 (opening of course)?", options: ["종강", "개업", "폐업", "진실"], answer: 0 },
+                    { q: "What is the antonym of 개강 (opening of course)?", options: ["종강", "개강", "출석", "가입"], answer: 0 },
+                    { q: "What is the synonym of 선불 (prepaid)?", options: ["후불", "수입", "최고", "실외"], answer: 0 },
+                    { q: "What is the antonym of 선불 (prepaid)?", options: ["후불", "선불", "유료", "합법"], answer: 0 },
+                    { q: "What is the synonym of 수출 (export)?", options: ["수입", "선불", "최고", "실외"], answer: 0 },
+                    { q: "What is the antonym of 수출 (export)?", options: ["수입", "수출", "유료", "불법"], answer: 0 },
+                    { q: "What is the synonym of 초보 (novice)?", options: ["경력자", "최고", "최저", "실내"], answer: 0 },
+                    { q: "What is the antonym of 초보 (novice)?", options: ["경력자", "초보", "선불", "후불"], answer: 0 },
+                    { q: "What is the synonym of 최저 (minimum)?", options: ["최고", "초보", "경력자", "실외"], answer: 0 },
+                    { q: "What is the antonym of 최저 (minimum)?", options: ["최고", "최저", "무료", "유료"], answer: 0 },
+                    { q: "What is the synonym of 실내 (interior)?", options: ["실외", "최고", "최저", "초보"], answer: 0 },
+                    { q: "What is the antonym of 실내 (interior)?", options: ["실외", "실내", "합법", "불법"], answer: 0 },
+                    { q: "What is the synonym of 무료 (free of charge)?", options: ["유료", "선불", "후불", "수출"], answer: 0 },
+                    { q: "What is the antonym of 무료 (free of charge)?", options: ["유료", "무료", "최고", "최저"], answer: 0 },
+                    { q: "What is the synonym of 합법 (legality)?", options: ["불법", "유료", "실내", "초보"], answer: 0 },
+                    { q: "What is the antonym of 합법 (legality)?", options: ["불법", "합법", "선불", "후불"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '달'?", options: ["월", "밤", "돈", "값"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '달'?", options: ["낮", "밤", "돈", "값"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '돈'?", options: ["현금", "달", "밤", "가격"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '돈'?", options: ["주간", "야간", "값", "밑"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '밤'?", options: ["야간", "낮", "월", "현금"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '밤'?", options: ["주간", "야간", "달", "돈"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '가격'?", options: ["값", "돈", "달", "밤"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '가격'?", options: ["주간", "야간", "낮", "위"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '아래'?", options: ["밑", "위", "중간", "밖"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '아래'?", options: ["위", "밑", "중간", "밖"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '중간'?", options: ["가운데", "밖", "위", "아래"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '중간'?", options: ["건너편", "가운데", "위", "아래"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '맞은편'?", options: ["건너편", "가운데", "위", "아래"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '외부'?", options: ["바깥", "안", "중간", "밑"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '외부'?", options: ["내부", "바깥", "중간", "밑"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '지역'?", options: ["구역", "온도", "도구", "옷차림"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '기온'?", options: ["온도", "지역", "도구", "임금"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '도구'?", options: ["공구", "지역", "온도", "직원"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '복장'?", options: ["옷차림", "임금", "조건", "허가"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '급여'?", options: ["월급", "복장", "사원", "업무"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '사원'?", options: ["직원", "급여", "자격", "요리"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '자격'?", options: ["조건", "사원", "급여", "복장"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '업무'?", options: ["일", "허가", "비자", "사료"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '허가'?", options: ["사증", "업무", "자격", "요리"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '비자'?", options: ["사증", "허가", "요리", "먹이"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '요리'?", options: ["사료", "비자", "허가", "업무"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '먹이'?", options: ["사료", "요리", "비자", "허가"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '노동'?", options: ["근로", "이유", "기준", "위생"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '노동'?", options: ["휴식", "근로", "이유", "기준"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '사유'?", options: ["이유", "노동", "기준", "위생"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '표준'?", options: ["기준", "사유", "소재", "해변"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '주소'?", options: ["소재지", "표준", "위생", "규칙"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '위생'?", options: ["청결", "주소", "기준", "가입"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '위생'?", options: ["불결", "청결", "기준", "주소"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '바닷가'?", options: ["해변", "위생", "주소", "규칙"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '규칙'?", options: ["수칙", "바닷가", "청결", "가입"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '출석'?", options: ["참석", "결석", "탈퇴", "종강"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '출석'?", options: ["결석", "참석", "가입", "탈퇴"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '가입'?", options: ["입사", "탈퇴", "퇴사", "폐업"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '가입'?", options: ["탈퇴", "입사", "퇴사", "폐업"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '입사'?", options: ["취업", "퇴사", "결석", "거짓"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '입사'?", options: ["퇴사", "취업", "결석", "거짓"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '진실'?", options: ["참", "거짓", "개강", "종강"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '진실'?", options: ["거짓", "참", "개강", "종강"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '개업'?", options: ["시작", "폐업", "개강", "종강"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '개업'?", options: ["폐업", "시작", "개강", "종강"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '개강'?", options: ["시작", "종강", "개업", "폐업"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '개강'?", options: ["종강", "시작", "개업", "폐업"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '선불'?", options: ["미리", "후불", "수입", "수출"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '선불'?", options: ["후불", "미리", "수입", "수출"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '수출'?", options: ["판매", "수입", "선불", "후불"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '수출'?", options: ["수입", "판매", "선불", "후불"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '초보'?", options: ["처음", "경력자", "최고", "최저"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '초보'?", options: ["경력자", "처음", "최고", "최저"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '최저'?", options: ["가장 낮음", "최고", "초보", "경력자"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '최저'?", options: ["최고", "가장 낮음", "초보", "경력자"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '실내'?", options: ["안", "실외", "무료", "유료"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '실내'?", options: ["실외", "안", "무료", "유료"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '무료'?", options: ["공짜", "유료", "합법", "불법"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '무료'?", options: ["유료", "공짜", "합법", "불법"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '합법'?", options: ["정식", "불법", "무료", "유료"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '합법'?", options: ["불법", "정식", "무료", "유료"], answer: 0 },
+                    { q: "What is the synonym of '노동'?", options: ["근로", "휴식", "취업", "퇴사"], answer: 0 },
+                    { q: "What is the antonym of '노동'?", options: ["휴식", "근로", "취업", "퇴사"], answer: 0 },
+                    { q: "What is the synonym of '사유'?", options: ["원인", "결과", "목적", "시작"], answer: 0 },
+                    { q: "What is the synonym of '표준'?", options: ["기준", "예외", "변화", "다름"], answer: 0 },
+                    { q: "What is the synonym of '위생'?", options: ["청결", "불결", "오염", "더러움"], answer: 0 },
+                    { q: "What is the synonym of '바닷가'?", options: ["해변", "산", "강", "들판"], answer: 0 },
+                    { q: "What is the synonym of '규칙'?", options: ["규율", "위반", "자유", "방해"], answer: 0 },
+                    { q: "What is the synonym of '진실'?", options: ["참", "거짓", "농담", "비밀"], answer: 0 },
+                    { q: "What is the synonym of '초보'?", options: ["초급자", "전문가", "베테랑", "달인"], answer: 0 },
+                    { q: "What is the synonym of '실내'?", options: ["안", "밖", "외부", "야외"], answer: 0 },
+                    { q: "What is the synonym of '합법'?", options: ["정식", "불법", "위법", "탈법"], answer: 0 },
+                    { q: "What is the antonym of '합법'?", options: ["불법", "정식", "공식", "허가"], answer: 0 },
+                    { q: "What is the synonym of '무료'?", options: ["공짜", "유료", "비쌈", "값어치"], answer: 0 },
+                    { q: "What is the antonym of '무료'?", options: ["유료", "공짜", "서비스", "나눔"], answer: 0 },
+                    { q: "What is the synonym of '수출'?", options: ["내보내기", "수입", "들여오기", "반입"], answer: 0 },
+                    { q: "What is the antonym of '수출'?", options: ["수입", "내보내기", "발송", "선적"], answer: 0 }
+                ]
+            },
+            "exam_verb_syn_ant_150": {
+                title: "Korean Vocabulary: Verb Synonyms & Antonyms (150 Items)",
+                description: "Advanced 150-item test covering action verbs, synonyms, and antonyms from the official study material.",
+                questions: [
+                    { q: "What is the synonym of 받다 (receive)?", options: ["타다", "주다", "내리다", "잃다"], answer: 0 },
+                    { q: "What is the antonym of 받다 (receive)?", options: ["주다", "타다", "얻다", "받아들이다"], answer: 0 },
+                    { q: "What is the synonym of 바꾸다 (change, exchange)?", options: ["환전하다", "지키다", "가르치다", "시작하다"], answer: 0 },
+                    { q: "What is the antonym of 시작하다 (start)?", options: ["끝내다", "계속하다", "열다", "만들다"], answer: 0 },
+                    { q: "What is the synonym of 끝내다 (finish)?", options: ["마치다", "시작하다", "열다", "올리다"], answer: 0 },
+                    { q: "What is the antonym of 팔다 (sell)?", options: ["사다", "주다", "빌리다", "보내다"], answer: 0 },
+                    { q: "What is the synonym of 팔다 (sell)?", options: ["판매하다", "사다", "구입하다", "얻다"], answer: 0 },
+                    { q: "What is the synonym of 사다 (buy)?", options: ["구입하다", "팔다", "판매하다", "버리다"], answer: 0 },
+                    { q: "What is the antonym of 올리다 (raise, rise)?", options: ["내리다", "낮다", "크다", "멀다"], answer: 0 },
+                    { q: "What is the synonym of 올리다 (raise)?", options: ["상승하다", "내리다", "떨어지다", "줄이다"], answer: 0 },
+                    { q: "What is the synonym of 뽑다 (pull out)?", options: ["빼내다", "꽂다", "넣다", "닫다"], answer: 0 },
+                    { q: "What is the antonym of 뽑다 (pull out)?", options: ["꽂다", "빼내다", "뽑기", "당기다"], answer: 0 },
+                    { q: "What is the synonym of 입금하다 (deposit)?", options: ["돈을 넣다", "출금하다", "찾다", "뽑다"], answer: 0 },
+                    { q: "What is the antonym of 입금하다 (deposit)?", options: ["출금하다", "넣다", "모으다", "저축하다"], answer: 0 },
+                    { q: "What is the synonym of 지키다 (keep, observe)?", options: ["따르다", "어기다", "위반하다", "버리다"], answer: 0 },
+                    { q: "What is the antonym of 지키다 (keep)?", options: ["어기다", "따르다", "준수하다", "지키기"], answer: 0 },
+                    { q: "What is the synonym of 환영하다 (welcome)?", options: ["맞이하다", "환송하다", "보내다", "떠나다"], answer: 0 },
+                    { q: "What is the antonym of 환영하다 (welcome)?", options: ["환송하다", "맞이하다", "좋아하다", "반기다"], answer: 0 },
+                    { q: "What is the synonym of 이다 (transfer)?", options: ["옮기다", "머무다", "체류하다", "멈추다"], answer: 0 },
+                    { q: "What is the antonym of 이다 (transfer/move)?", options: ["머무다", "옮기다", "이동", "운반"], answer: 0 },
+                    { q: "What is the synonym of 짓다 (build, construct)?", options: ["설치하다", "부수다", "파괴하다", "해지하다"], answer: 0 },
+                    { q: "What is the antonym of 짓다 (build)?", options: ["부수다", "설치하다", "만들다", "만족하다"], answer: 0 },
+                    { q: "What is the synonym of 출근하다 (go to work)?", options: ["퇴근하다", "출발하다", "도착하다", "쉬다"], answer: 0 },
+                    { q: "What is the antonym of 출근하다 (go to work)?", options: ["퇴근하다", "지각하다", "출근", "근무"], answer: 0 },
+                    { q: "What is the synonym of 고르다 (choose, select)?", options: ["선택하다", "버리다", "포기하다", "지우다"], answer: 0 },
+                    { q: "What is the antonym of 고르다 (choose)?", options: ["제외하다", "선택하다", "고름", "뽑다"], answer: 0 },
+                    { q: "What is the synonym of 버리다 (throw away)?", options: ["폐기하다", "줍다", "간직하다", "모으다"], answer: 0 },
+                    { q: "What is the antonym of 버리다 (throw away)?", options: ["줍다", "폐기", "버려짐", "청소"], answer: 0 },
+                    { q: "What is the synonym of 수입하다 (import)?", options: ["들여오다", "수출하다", "내보내다", "팔다"], answer: 0 },
+                    { q: "What is the antonym of 수입하다 (import)?", options: ["수출하다", "들여오다", "사다", "구입"], answer: 0 },
+                    { q: "What is the synonym of 증가하다 (increase)?", options: ["늘다", "줄다", "감소하다", "내리다"], answer: 0 },
+                    { q: "What is the antonym of 증가하다 (increase)?", options: ["감소하다", "늘다", "오르다", "상승"], answer: 0 },
+                    { q: "What is the synonym of 준비하다 (prepare)?", options: ["마련하다", "없애다", "버리다", "끝내다"], answer: 0 },
+                    { q: "What is the synonym of 채용하다 (hire, employ)?", options: ["고용하다", "해고하다", "자르다", "그만두다"], answer: 0 },
+                    { q: "What is the antonym of 채용하다 (hire)?", options: ["해고하다", "고용하다", "뽑다", "모집"], answer: 0 },
+                    { q: "What is the synonym of 제작하다 (manufacture)?", options: ["생산하다", "부수다", "파괴하다", "고치다"], answer: 0 },
+                    { q: "What is the antonym of 제작하다 (manufacture)?", options: ["부수다", "생산하다", "만들다", "조립"], answer: 0 },
+                    { q: "What is the synonym of 주문하다 (order)?", options: ["명령하다", "답다", "취소하다", "빼다"], answer: 0 },
+                    { q: "What is the synonym of 보관하다 (keep, store)?", options: ["저장하다", "버리다", "잃다", "찾다"], answer: 0 },
+                    { q: "What is the antonym of 보관하다 (store)?", options: ["꺼내다", "저장", "간직", "보존"], answer: 0 },
+                    { q: "What is the synonym of 정리하다 (arrange, organize)?", options: ["정돈하다", "어지럽히다", "흐트러뜨리다", "망치다"], answer: 0 },
+                    { q: "What is the antonym of 정리하다 (organize)?", options: ["어지럽히다", "정돈", "치우다", "청소"], answer: 0 },
+                    { q: "What is the synonym of 찾다 (look for, find)?", options: ["구하다", "잃어버리다", "숨기다", "놓치다"], answer: 0 },
+                    { q: "What is the antonym of 찾다 (find)?", options: ["잃어버리다", "구하다", "수색", "발견"], answer: 0 },
+                    { q: "What is the synonym of 보수하다 (repair)?", options: ["수리하다", "망치다", "파손하다", "부수다"], answer: 0 },
+                    { q: "What is the synonym of 만들다 (make, open)?", options: ["개설하다", "닫다", "폐쇄하다", "부수다"], answer: 0 },
+                    { q: "What is the antonym of 만들다/열다 (open)?", options: ["닫다", "개설", "생성", "출발"], answer: 0 },
+                    { q: "What is the synonym of 끄다 (turn off)?", options: ["차단하다", "켜다", "열다", "잇다"], answer: 0 },
+                    { q: "What is the antonym of 끄다 (turn off)?", options: ["켜다", "차단", "정지", "종료"], answer: 0 },
+                    { q: "What is the synonym of 받다 (receive) - action variant?", options: ["수령하다", "주다", "내리다", "빼다"], answer: 0 },
+                    { q: "What is the synonym of 보내다 (send)?", options: ["발송하다", "받다", "얻다", "쥐다"], answer: 0 },
+                    { q: "What is the antonym of 보내다 (send)?", options: ["받다", "발송", "전송", "부치다"], answer: 0 },
+                    { q: "What is the synonym of 포장하다 (wrap)?", options: ["싸다", "풀다", "뜯다", "해체하다"], answer: 0 },
+                    { q: "What is the antonym of 포장하다 (wrap)?", options: ["풀다", "싸다", "묶다", "포장"], answer: 0 },
+                    { q: "What is the synonym of 올라가다 (go up)?", options: ["상승하다", "내려가다", "떨어지다", "추락하다"], answer: 0 },
+                    { q: "What is the antonym of 올라가다 (go up)?", options: ["내려가다", "상승하다", "오르기", "등산"], answer: 0 },
+                    { q: "What is the synonym of 도착하다 (arrive)?", options: ["이르다", "출발하다", "떠나다", "가다"], answer: 0 },
+                    { q: "What is the antonym of 도착하다 (arrive)?", options: ["출발하다", "이르다", "도착", "골인"], answer: 0 },
+                    { q: "What is the synonym of 하차하다 (get off)?", options: ["내리다", "타다", "탑승하다", "오르다"], answer: 0 },
+                    { q: "What is the antonym of 하차하다 (get off)?", options: ["탑승하다", "내리다", "하차", "탈출"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '받다'?", options: ["타다", "주다", "버리다", "밀다"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '받다'?", options: ["주다", "타다", "얻다", "수령"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '바꾸다'?", options: ["교환하다", "지키다", "버리다", "찾다"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '시작하다'?", options: ["출발하다", "끝내다", "마치다", "닫다"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '시작하다'?", options: ["끝내다", "출발하다", "시작", "오픈"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '끝내다'?", options: ["마치다", "시작하다", "열다", "만들다"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '팔다'?", options: ["판매하다", "사다", "구입하다", "얻다"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '팔다'?", options: ["사다", "판매하다", "수출", "제작"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '사다'?", options: ["구입하다", "팔다", "버리다", "주다"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '올리다'?", options: ["상승하다", "내리다", "떨어지다", "줄이다"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '올리다'?", options: ["내리다", "상승하다", "증가", "성장"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '뽑다'?", options: ["빼내다", "꽂다", "넣다", "닫다"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '뽑다'?", options: ["꽂다", "빼내다", "당기다", "선택"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '입금하다'?", options: ["돈을 넣다", "출금하다", "찾다", "쓰다"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '입금하다'?", options: ["출금하다", "넣다", "예금", "저축"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '지키다'?", options: ["준수하다", "어기다", "위반하다", "버리다"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '지키다'?", options: ["어기다", "준수하다", "보호", "엄수"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '환영하다'?", options: ["맞이하다", "환송하다", "배웅하다", "떠나다"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '환영하다'?", options: ["환송하다", "맞이하다", "영접", "반김"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '옮기다'?", options: ["이동하다", "머무다", "멈추다", "정지"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '옮기다'?", options: ["머무다", "이동하다", "운반", "전달"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '짓다'?", options: ["건설하다", "부수다", "파괴하다", "해지"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '짓다'?", options: ["부수다", "건설하다", "만들다", "생산"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '출근하다'?", options: ["회사에 가다", "퇴근하다", "결근하다", "쉬다"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '출근하다'?", options: ["퇴근하다", "회사에 가다", "근무", "지각"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '고르다'?", options: ["선택하다", "제외하다", "버리다", "무시"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '고르다'?", options: ["제외하다", "선택하다", "고름", "발탁"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '버리다'?", options: ["폐기하다", "줍다", "간직하다", "저장"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '버리다'?", options: ["줍다", "폐기하다", "투기", "삭제"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '수입하다'?", options: ["들여오다", "수출하다", "내보내다", "배송"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '수입하다'?", options: ["수출하다", "들여오다", "수입", "반입"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '증가하다'?", options: ["늘다", "줄다", "감소", "축소"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '증가하다'?", options: ["감소하다", "늘다", "확대", "상승"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '준비하다'?", options: ["마련하다", "해제하다", "폐기하다", "중단"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '채용하다'?", options: ["고용하다", "해고하다", "자르다", "퇴사"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '채용하다'?", options: ["해고하다", "고용하다", "모집", "선발"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '제작하다'?", options: ["생산하다", "파괴하다", "부수다", "철거"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '제작하다'?", options: ["파괴하다", "생산하다", "제조", "완성"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '주문하다'?", options: ["주문", "취소", "환불", "반품"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '보관하다'?", options: ["저장하다", "버리다", "분실", "방치"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '보관하다'?", options: ["꺼내다", "저장하다", "보존", "유지"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '정리하다'?", options: ["정돈하다", "어지럽히다", "혼란", "방해"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '정리하다'?", options: ["어지럽히다", "정돈하다", "정돈", "정리"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '찾다'?", options: ["구하다", "잃다", "놓치다", "숨기다"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '찾다'?", options: ["잃어버리다", "구하다", "탐색", "발견"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '보수하다'?", options: ["수리하다", "망치다", "파손", "고장"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '만들다'?", options: ["개설하다", "폐쇄하다", "중단", "철수"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '만들다'?", options: ["부수다", "개설하다", "생성", "구축"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '끄다'?", options: ["차단하다", "켜다", "작동", "운행"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '끄다'?", options: ["켜다", "차단하다", "소등", "절전"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '보내다'?", options: ["발송하다", "받다", "수령", "취득"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '보내다'?", options: ["받다", "발송하다", "전송", "송부"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '포장하다'?", options: ["싸다", "풀다", "해체", "개봉"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '포장하다'?", options: ["풀다", "싸다", "포장", "밀봉"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '올라가다'?", options: ["상승하다", "내려가다", "추락", "낙하"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '올라가다'?", options: ["내려가다", "상승하다", "등반", "상향"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '도착하다'?", options: ["이르다", "출발하다", "떠나다", "시작"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '도착하다'?", options: ["출발하다", "이르다", "도착", "골인"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '하차하다'?", options: ["내리다", "타다", "탑승", "승차"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '하차하다'?", options: ["탑승하다", "내리다", "하차", "하강"], answer: 0 }
+                ]
+            },
+            "exam_adj_syn_ant_150": {
+                title: "Korean Vocabulary: Adjective Synonyms & Antonyms (150 Items)",
+                description: "Advanced 150-item test covering descriptive adjectives, synonyms, and antonyms from the study material.",
+                questions: [
+                    { q: "What is the synonym of 가깝다 (near)?", options: ["멀다", "가벼우다", "차갑다", "밝다"], answer: 0 },
+                    { q: "What is the antonym of 가깝다 (near)?", options: ["멀다", "가깝기", "근처", "이웃"], answer: 0 },
+                    { q: "What is the synonym of 무겁다 (heavy)?", options: ["가볍다", "가벼우다", "크다", "작다"], answer: 0 },
+                    { q: "What is the antonym of 무겁다 (heavy)?", options: ["가볍다", "무거움", "체중", "질량"], answer: 0 },
+                    { q: "What is the synonym of 차갑다 (cold - touch)?", options: ["춥다", "뜨겁다", "따뜻하다", "시원하다"], answer: 0 },
+                    { q: "What is the antonym of 차갑다 (cold)?", options: ["뜨겁다", "춥다", "시원하다", "차분하다"], answer: 0 },
+                    { q: "What is the synonym of 오래되다 (old - object)?", options: ["새롭다", "낡다", "젊다", "빠르다"], answer: 0 },
+                    { q: "What is the antonym of 오래되다 (old)?", options: ["새롭다", "낡다", "골동품", "세월"], answer: 0 },
+                    { q: "What is the synonym of 밝다 (bright)?", options: ["어둡다", "환하다", "깜깜하다", "흐리다"], answer: 1 },
+                    { q: "What is the antonym of 밝다 (bright)?", options: ["어둡다", "환하다", "빛나다", "햇살"], answer: 0 },
+                    { q: "What is the synonym of 어렵다 (difficult)?", options: ["곤란하다", "쉽다", "간단하다", "편안하다"], answer: 0 },
+                    { q: "What is the antonym of 어렵다 (difficult)?", options: ["쉽다", "곤란하다", "복잡하다", "힘들다"], answer: 0 },
+                    { q: "What is the synonym of 작다 (small)?", options: ["크다", "적다", "넓다", "길다"], answer: 1 },
+                    { q: "What is the antonym of 작다 (small)?", options: ["크다", "소형", "미니", "협소"], answer: 0 },
+                    { q: "What is the synonym of 불편하다 (uncomfortable)?", options: ["편안하다", "편하다", "좋다", "깨끗하다"], answer: 0 },
+                    { q: "What is the antonym of 불편하다 (uncomfortable)?", options: ["편안하다", "불편", "고생", "어려움"], answer: 0 },
+                    { q: "What is the synonym of 춥다 (cold - weather)?", options: ["덥다", "늘다", "시원하다", "따뜻하다"], answer: 0 },
+                    { q: "What is the antonym of 춥다 (cold)?", options: ["덥다", "추움", "겨울", "얼음"], answer: 0 },
+                    { q: "What is the synonym of 더럽다 (dirty)?", options: ["지저분하다", "깨끗하다", "맑다", "정리되다"], answer: 0 },
+                    { q: "What is the antonym of 더럽다 (dirty)?", options: ["깨끗하다", "지저분하다", "오염", "쓰레기"], answer: 0 },
+                    { q: "What is the synonym of 높다 (high)?", options: ["낮다", "크다", "길다", "깊다"], answer: 0 },
+                    { q: "What is the antonym of 높다 (high)?", options: ["낮다", "높이", "상층", "꼭대기"], answer: 0 },
+                    { q: "What is the synonym of 같다 (same)?", options: ["다르다", "비슷하다", "일치하다", "공통"], answer: 0 },
+                    { q: "What is the antonym of 같다 (same)?", options: ["다르다", "비슷하다", "동일", "일치"], answer: 0 },
+                    { q: "What is the synonym of 따뜻하다 (warm)?", options: ["시원하다", "춥다", "차갑다", "뜨겁다"], answer: 0 },
+                    { q: "What is the antonym of 따뜻하다 (warm)?", options: ["시원하다", "따뜻함", "온화", "봄"], answer: 0 },
+                    { q: "What is the synonym of 부지런하다 (diligent)?", options: ["게으르다", "부지런함", "열심", "노력"], answer: 0 },
+                    { q: "What is the antonym of 부지런하다 (diligent)?", options: ["게으르다", "나태하다", "부지런", "성실"], answer: 0 },
+                    { q: "What is the synonym of 조용하다 (quiet)?", options: ["시끄럽다", "고요하다", "잠잠하다", "평화롭다"], answer: 0 },
+                    { q: "What is the antonym of 조용하다 (quiet)?", options: ["시끄럽다", "고요하다", "잠잠", "적막"], answer: 0 },
+                    { q: "What is the synonym of 복잡하다 (complicated)?", options: ["단단하다", "단순하다", "쉽다", "편하다"], answer: 0 },
+                    { q: "What is the antonym of 복잡하다 (complicated)?", options: ["단순하다", "복잡", "혼란", "어려움"], answer: 0 },
+                    { q: "What is the synonym of 엄격하다 (strict)?", options: ["너그럽다", "자유롭다", "부드럽다", "편하다"], answer: 0 },
+                    { q: "What is the synonym of 좁다 (narrow)?", options: ["넓다", "크다", "길다", "많다"], answer: 0 },
+                    { q: "What is the antonym of 좁다 (narrow)?", options: ["넓다", "협소", "비좁다", "틈"], answer: 0 },
+                    { q: "What is the synonym of 얇다 (thin)?", options: ["두껍다", "가볍다", "작다", "가늘다"], answer: 0 },
+                    { q: "What is the antonym of 얇다 (thin)?", options: ["두껍다", "얇기", "종이", "두께"], answer: 0 },
+                    { q: "What is the synonym of 건조하다 (dry)?", options: ["습하다", "축축하다", "물기", "비"], answer: 0 },
+                    { q: "What is the antonym of 건조하다 (dry)?", options: ["습하다", "건조", "가뭄", "사막"], answer: 0 },
+                    { q: "What is the synonym of 가난하다 (poor)?", options: ["부유하다", "풍요롭다", "돈많다", "거지"], answer: 0 },
+                    { q: "What is the antonym of 가난하다 (poor)?", options: ["부유하다", "가난", "빈곤", "결핍"], answer: 0 },
+                    { q: "What is the synonym of 부드럽다 (soft)?", options: ["딱딱하다", "단단하다", "거칠다", "부드러움"], answer: 0 },
+                    { q: "What is the antonym of 부드럽다 (soft)?", options: ["딱딱하다", "부드러움", "솜", "크림"], answer: 0 },
+                    { q: "What is the synonym of 크다 (big)?", options: ["작다", "넓다", "거대하다", "높다"], answer: 2 },
+                    { q: "What is the antonym of 크다 (big)?", options: ["작다", "크기", "거대", "장대"], answer: 0 },
+                    { q: "What is the synonym of 길다 (long)?", options: ["짧다", "높다", "넓다", "멀다"], answer: 0 },
+                    { q: "What is the antonym of 길다 (long)?", options: ["짧다", "길이", "연장", "영원"], answer: 0 },
+                    { q: "What is the synonym of 빠르다 (fast)?", options: ["느리다", "급하다", "신속하다", "즉시"], answer: 0 },
+                    { q: "What is the antonym of 빠르다 (fast)?", options: ["느리다", "속도", "스피드", "질주"], answer: 0 },
+                    { q: "What is the synonym of 많다 (many)?", options: ["적다", "풍부하다", "가득", "충분"], answer: 0 },
+                    { q: "What is the antonym of 많다 (many)?", options: ["적다", "많음", "대량", "수많음"], answer: 0 },
+                    { q: "What is the synonym of 무섭다 (scary)?", options: ["두렵다", "기쁘다", "슬프다", "안심"], answer: 0 },
+                    { q: "What is the antonym of 무섭다 (scary)?", options: ["안심하다", "두렵다", "공포", "떨림"], answer: 0 },
+                    { q: "What is the synonym of 슬프다 (sad)?", options: ["기쁘다", "괴롭다", "우울하다", "눈물"], answer: 0 },
+                    { q: "What is the antonym of 슬프다 (sad)?", options: ["기쁘다", "슬픔", "비극", "절망"], answer: 0 },
+                    { q: "What is the synonym of 안전하다 (safe)?", options: ["위험하다", "안심", "평화", "보호"], answer: 0 },
+                    { q: "What is the antonym of 안전하다 (safe)?", options: ["위험하다", "안전", "무사", "평온"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '가깝다'?", options: ["멀다", "가깝고", "근처", "이웃"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '가깝다'?", options: ["멀다", "가깝다", "가까움", "근접"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '무겁다'?", options: ["가볍다", "무거움", "체중", "중량"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '무겁다'?", options: ["가볍다", "무겁다", "중후", "묵직"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '차갑다'?", options: ["뜨겁다", "춥다", "시원", "냉기"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '차갑다'?", options: ["뜨겁다", "차갑다", "냉랭", "서늘"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '오래되다'?", options: ["새롭다", "낡다", "골동", "세월"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '오래되다'?", options: ["새롭다", "오래되다", "구식", "헌것"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '밝다'?", options: ["어둡다", "환하다", "빛남", "명랑"], answer: 1 },
+                    { q: "Antonym check: What is the opposite of '밝다'?", options: ["어둡다", "밝다", "환함", "명백"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '어렵다'?", options: ["쉽다", "곤란하다", "난해", "복잡"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '어렵다'?", options: ["쉽다", "어렵다", "곤란", "난관"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '작다'?", options: ["크다", "적다", "소형", "미니"], answer: 1 },
+                    { q: "Antonym check: What is the opposite of '작다'?", options: ["크다", "작다", "소량", "미소"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '불편하다'?", options: ["편안하다", "편하다", "좋음", "안락"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '불편하다'?", options: ["편안하다", "불편하다", "고통", "난처"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '춥다'?", options: ["덥다", "추움", "동파", "서리"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '춥다'?", options: ["덥다", "춥다", "한파", "추위"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '더럽다'?", options: ["깨끗하다", "지저분하다", "오염", "티끌"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '더럽다'?", options: ["깨끗하다", "더럽다", "추잡", "불결"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '높다'?", options: ["낮다", "높이", "상층", "꼭대기"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '높다'?", options: ["낮다", "높다", "고층", "정상"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '같다'?", options: ["다르다", "비슷하다", "일치", "동일"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '같다'?", options: ["다르다", "같다", "유사", "공통"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '따뜻하다'?", options: ["시원하다", "따뜻함", "온화", "봄"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '따뜻하다'?", options: ["시원하다", "따뜻하다", "온열", "난방"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '부지런하다'?", options: ["게으르다", "부지런", "열심", "성실"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '부지런하다'?", options: ["게으르다", "부지런하다", "나태", "태만"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '조용하다'?", options: ["시끄럽다", "고요하다", "잠잠", "적막"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '조용하다'?", options: ["시끄럽다", "조용하다", "침묵", "음소거"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '복잡하다'?", options: ["단순하다", "복잡", "혼란", "어려움"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '복잡하다'?", options: ["단순하다", "복잡하다", "엉킴", "미로"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '엄격하다'?", options: ["너그럽다", "자유롭다", "부드럽다", "엄숙"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '좁다'?", options: ["넓다", "협소", "비좁다", "틈"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '좁다'?", options: ["넓다", "좁다", "협소함", "공간"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '얇다'?", options: ["두껍다", "얇기", "종이", "두께"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '얇다'?", options: ["두껍다", "얇다", "실", "종이장"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '건조하다'?", options: ["습하다", "건조", "가뭄", "사막"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '건조하다'?", options: ["습하다", "건조하다", "바짝", "메마름"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '가난하다'?", options: ["부유하다", "가난", "빈곤", "결핍"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '가난하다'?", options: ["부유하다", "가난하다", "거지", "결핍"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '부드럽다'?", options: ["딱딱하다", "부드러움", "솜", "크림"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '부드럽다'?", options: ["딱딱하다", "부드럽다", "유연", "순함"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '크다'?", options: ["작다", "크기", "거대", "장대"], answer: 2 },
+                    { q: "Antonym check: What is the opposite of '크다'?", options: ["작다", "크다", "거대함", "광대"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '길다'?", options: ["짧다", "길이", "연장", "영원"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '길다'?", options: ["짧다", "길다", "단축", "백년"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '빠르다'?", options: ["느리다", "속도", "스피드", "질주"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '빠르다'?", options: ["느리다", "빠르다", "급행", "특급"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '많다'?", options: ["적다", "많음", "대량", "수많음"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '많다'?", options: ["적다", "많다", "풍족", "가득"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '무섭다'?", options: ["두렵다", "기쁘다", "슬프다", "공포"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '무섭다'?", options: ["안심하다", "무섭다", "공포심", "두려움"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '슬프다'?", options: ["기쁘다", "슬픔", "비극", "절망"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '슬프다'?", options: ["기쁘다", "슬프다", "눈물", "오열"], answer: 0 },
+                    { q: "Synonym check: What word means the same as '안전하다'?", options: ["위험하다", "안전", "무사", "평온"], answer: 0 },
+                    { q: "Antonym check: What is the opposite of '안전하다'?", options: ["위험하다", "안전하다", "보호", "구조"], answer: 0 }
+                ]
+            }
+        };
 
-    <!-- Dynamically Load Exam Modules -->
-    <script>
-        // List of exam files inside the 'exams' folder
-        const examFiles = [
-            'exams/exam1.js',
-            'exams/exam2.js',
-            'exams/exam3.js',
-            'exams/exam4.js',
-            'exams/exam5.js',
-            'exams/exam6.js',
-            'exams/exam7.js',
-            'exams/exam8.js',
-            'exams/exam9.js'
-        ];
+        let currentExamId = null;
+        let userAnswers = {};
+        let activeCharts = [];
 
-        function loadScript(src) {
-            return new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = src;
-                script.onload = resolve;
-                script.onerror = () => {
-                    console.warn(`Could not load ${src}`);
-                    resolve(); // Continue even if one file is missing
-                };
-                document.body.appendChild(script);
-            });
-        }
-
-        // Load all exams asynchronously before rendering
-        Promise.all(examFiles.map(loadScript)).then(() => {
+        window.onload = () => {
             if (typeof ChartDataLabels !== 'undefined') {
                 Chart.register(ChartDataLabels);
             }
             showPortal();
-        });
-    </script>
-
-    <script>
-        let currentExamId = null;
-        let userAnswers = {};
-        let activeCharts = [];
+        };
 
         function showPortal() {
             currentExamId = null;
@@ -170,16 +948,19 @@
             container.innerHTML = '';
 
             for (const [key, exam] of Object.entries(window.allExams)) {
+                const badge = exam.badge || "어휘 (Vocabulary)";
+                const subtitle = exam.subtitle || "Practice Test";
+                
                 const card = document.createElement('div');
                 card.className = "bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition flex flex-col justify-between";
                 card.innerHTML = `
                     <div>
                         <div class="flex justify-between items-center mb-3">
-                            <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-full">${exam.badge}</span>
+                            <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-full">${badge}</span>
                             <span class="text-slate-400 text-xs">${exam.questions.length} Questions</span>
                         </div>
                         <h3 class="text-xl font-bold text-slate-900 mb-1">${exam.title}</h3>
-                        <p class="text-slate-500 text-xs mb-3">${exam.subtitle}</p>
+                        <p class="text-slate-500 text-xs mb-3">${subtitle}</p>
                         <p class="text-slate-600 text-sm mb-6">${exam.description}</p>
                     </div>
                     <button onclick="startExam('${key}')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-lg transition text-sm">
@@ -199,7 +980,8 @@
             document.getElementById('test-view').classList.remove('hidden');
             document.getElementById('home-btn').classList.remove('hidden');
             document.getElementById('header-title').innerText = exam.title;
-            document.getElementById('header-subtitle').innerText = exam.subtitle;
+            const subtitle = exam.subtitle || "Practice Test";
+            document.getElementById('header-subtitle').innerText = subtitle;
             document.getElementById('result-card').classList.add('hidden');
 
             renderQuestions();
@@ -217,10 +999,15 @@
             container.innerHTML = '';
             const exam = window.allExams[currentExamId];
 
-            exam.questions.forEach((q) => {
+            exam.questions.forEach((q, index) => {
+                const qId = q.id !== undefined ? q.id : (index + 1);
+                const qTitle = q.title || q.q;
+                const qTopic = q.topic || "Vocabulary";
+                const qExplanation = q.explanation || "정답입니다. (Correct answer.)";
+
                 const card = document.createElement('div');
                 card.className = "bg-white rounded-xl p-6 shadow-sm border border-slate-200";
-                card.id = `question-${q.id}`;
+                card.id = `question-${qId}`;
 
                 let visualContent = '';
                 if (q.type === 'text' && q.word) {
@@ -230,14 +1017,14 @@
                         </div>
                     `;
                 } else if (q.chartType) {
-                    visualContent = `<div class="my-4 p-4 bg-slate-50 rounded-xl border border-slate-100 flex justify-center"><div class="w-full max-w-md"><canvas id="chart-${q.id}"></canvas></div></div>`;
+                    visualContent = `<div class="my-4 p-4 bg-slate-50 rounded-xl border border-slate-100 flex justify-center"><div class="w-full max-w-md"><canvas id="chart-${qId}"></canvas></div></div>`;
                 }
 
                 let optionsHtml = '';
                 q.options.forEach((opt, optIndex) => {
                     optionsHtml += `
-                        <button onclick="selectOption(${q.id}, ${optIndex})" id="q${q.id}-opt${optIndex}" class="w-full text-left px-4 py-3 rounded-lg border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition flex items-center space-x-3 text-slate-700">
-                            <span class="w-7 h-7 rounded-full bg-slate-100 text-slate-600 font-bold text-sm flex items-center justify-center shrink-0 border border-slate-300" id="q${q.id}-num${optIndex}">${optIndex + 1}</span>
+                        <button onclick="selectOption(${qId}, ${optIndex})" id="q${qId}-opt${optIndex}" class="w-full text-left px-4 py-3 rounded-lg border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition flex items-center space-x-3 text-slate-700">
+                            <span class="w-7 h-7 rounded-full bg-slate-100 text-slate-600 font-bold text-sm flex items-center justify-center shrink-0 border border-slate-300" id="q${qId}-num${optIndex}">${optIndex + 1}</span>
                             <span class="text-base font-medium">${opt}</span>
                         </button>
                     `;
@@ -245,30 +1032,30 @@
 
                 card.innerHTML = `
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-semibold px-2.5 py-0.5 rounded bg-slate-100 text-slate-600">${q.topic}</span>
-                        <span class="text-xs text-slate-400">Q${q.id}</span>
+                        <span class="text-xs font-semibold px-2.5 py-0.5 rounded bg-slate-100 text-slate-600">${qTopic}</span>
+                        <span class="text-xs text-slate-400">Q${qId}</span>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-800 mb-2">${q.title}</h3>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">${qTitle}</h3>
                     ${visualContent}
                     <div class="space-y-2.5 mt-4">
                         ${optionsHtml}
                     </div>
-                    <div id="explanation-${q.id}" class="hidden mt-4 p-4 rounded-lg bg-indigo-50 border border-indigo-200 text-sm text-indigo-900">
+                    <div id="explanation-${qId}" class="hidden mt-4 p-4 rounded-lg bg-indigo-50 border border-indigo-200 text-sm text-indigo-900">
                         <p class="font-bold mb-1">💡 해설 (Explanation):</p>
-                        <p>${q.explanation}</p>
+                        <p>${qExplanation}</p>
                     </div>
                 `;
 
                 container.appendChild(card);
 
                 if (q.chartType) {
-                    setTimeout(() => renderChart(q), 50);
+                    setTimeout(() => renderChart(q, qId), 50);
                 }
             });
         }
 
-        function renderChart(q) {
-            const ctx = document.getElementById(`chart-${q.id}`);
+        function renderChart(q, qId) {
+            const ctx = document.getElementById(`chart-${qId}`);
             if (!ctx) return;
 
             const chartConfig = {
@@ -311,15 +1098,20 @@
             userAnswers[qId] = optionIndex;
             const exam = window.allExams[currentExamId];
 
-            exam.questions.find(item => item.id === qId).options.forEach((_, idx) => {
-                const btn = document.getElementById(`q${qId}-opt${idx}`);
-                const num = document.getElementById(`q${qId}-num${idx}`);
-                if (idx === optionIndex) {
-                    btn.className = "w-full text-left px-4 py-3 rounded-lg border-2 border-indigo-600 bg-indigo-50 transition flex items-center space-x-3 text-indigo-900 font-semibold";
-                    num.className = "w-7 h-7 rounded-full bg-indigo-600 text-white font-bold text-sm flex items-center justify-center shrink-0 border border-indigo-600";
-                } else {
-                    btn.className = "w-full text-left px-4 py-3 rounded-lg border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition flex items-center space-x-3 text-slate-700";
-                    num.className = "w-7 h-7 rounded-full bg-slate-100 text-slate-600 font-bold text-sm flex items-center justify-center shrink-0 border border-slate-300";
+            exam.questions.forEach((q, index) => {
+                const currentQId = q.id !== undefined ? q.id : (index + 1);
+                if (currentQId === qId) {
+                    q.options.forEach((_, idx) => {
+                        const btn = document.getElementById(`q${qId}-opt${idx}`);
+                        const num = document.getElementById(`q${qId}-num${idx}`);
+                        if (idx === optionIndex) {
+                            btn.className = "w-full text-left px-4 py-3 rounded-lg border-2 border-indigo-600 bg-indigo-50 transition flex items-center space-x-3 text-indigo-900 font-semibold";
+                            num.className = "w-7 h-7 rounded-full bg-indigo-600 text-white font-bold text-sm flex items-center justify-center shrink-0 border border-indigo-600";
+                        } else {
+                            btn.className = "w-full text-left px-4 py-3 rounded-lg border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition flex items-center space-x-3 text-slate-700";
+                            num.className = "w-7 h-7 rounded-full bg-slate-100 text-slate-600 font-bold text-sm flex items-center justify-center shrink-0 border border-slate-300";
+                        }
+                    });
                 }
             });
         }
@@ -328,13 +1120,14 @@
             const exam = window.allExams[currentExamId];
             let score = 0;
 
-            exam.questions.forEach((q) => {
-                const selectedOpt = userAnswers[q.id];
-                const expDiv = document.getElementById(`explanation-${q.id}`);
+            exam.questions.forEach((q, index) => {
+                const qId = q.id !== undefined ? q.id : (index + 1);
+                const selectedOpt = userAnswers[qId];
+                const expDiv = document.getElementById(`explanation-${qId}`);
                 expDiv.classList.remove('hidden');
 
                 q.options.forEach((_, idx) => {
-                    const btn = document.getElementById(`q${q.id}-opt${idx}`);
+                    const btn = document.getElementById(`q${qId}-opt${idx}`);
                     btn.disabled = true;
 
                     if (idx === q.answer) {
